@@ -40,6 +40,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
+        /* LEFT */
         .left {
             flex: 1;
             background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
@@ -51,10 +52,23 @@
             color: white;
         }
 
-        .left img {
-            width: 200px;
-            margin-bottom: 20px;
-            filter: brightness(0) invert(1);
+        /* LOGO BULAT */
+        .logo-circle {
+            width: 160px;
+            height: 160px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .logo-circle img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
         }
 
         .left h3 {
@@ -71,6 +85,7 @@
             line-height: 1.6;
         }
 
+        /* RIGHT */
         .right {
             flex: 1.2;
             padding: 50px 50px;
@@ -185,6 +200,7 @@
             font-size: 18px;
         }
 
+        /* RESPONSIVE */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -194,8 +210,9 @@
                 padding: 30px 20px;
             }
 
-            .left img {
-                width: 150px;
+            .logo-circle {
+                width: 120px;
+                height: 120px;
             }
 
             .left h3 {
@@ -218,7 +235,9 @@
 <div class="container">
 
     <div class="left">
-        <img src="{{ asset('spartix.png') }}" alt="SPARTIX Logo">
+        <div class="logo-circle">
+            <img src="{{ asset('spartix.png') }}" alt="SPARTIX Logo">
+        </div>
         <h3>Bergabung dengan SPARTIX</h3>
         <p>Daftarkan akun Anda dan mulai kelola bisnis dengan lebih mudah dan efisien</p>
     </div>
