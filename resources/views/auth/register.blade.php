@@ -4,119 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - SPARTIX</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
     <style>
-        body {
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #587d84, #20373f);
-            height: 100vh;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .container {
             display: flex;
-            width: 75%;
-            max-width: 1050px;
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 22px;
+            width: 100%;
+            max-width: 950px;
+            background: white;
+            border-radius: 20px;
             overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
         .left {
             flex: 1;
-            background: rgba(255, 255, 255, 0.13);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            padding: 20px;
+            padding: 40px;
+            color: white;
         }
 
         .left img {
-            width: 250px;
+            width: 200px;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        .left h3 {
+            font-size: 24px;
+            font-weight: 600;
             margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .left p {
+            font-size: 14px;
+            opacity: 0.9;
+            text-align: center;
+            line-height: 1.6;
         }
 
         .right {
             flex: 1.2;
-            background: rgba(255, 255, 255, 0.20);
-            padding: 50px 45px;
+            padding: 50px 50px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border-radius: 0px 20px 20px 0px;
         }
 
         h2 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-weight: 800;
-            color: #133c44;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 20px;
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            margin: 12px 0;
-            border: none;
-            border-bottom: 2px solid #000000ff;
-            background: transparent;
-            font-size: 15px;
+            padding: 13px 15px 13px 45px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f8fafc;
+            font-size: 14px;
             outline: none;
-            color: #0e2a30;
+            color: #1e293b;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
         }
 
         .btn {
             width: 100%;
-            margin-top: 22px;
+            margin-top: 10px;
             padding: 14px;
-            background: linear-gradient(to right, #144f57, #2f7b83);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: white;
             font-size: 16px;
             font-weight: 600;
-            border-radius: 30px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             transition: 0.3s;
+            font-family: 'Poppins', sans-serif;
         }
 
         .btn:hover {
-            opacity: 0.85;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
         }
 
         .links {
             text-align: center;
-            margin-top: 18px;
-            font-size: 18px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #64748b;
         }
 
         .links a {
-            color: #0f3341;
+            color: #2563eb;
             text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .links a:hover {
+            color: #1e40af;
+            text-decoration: underline;
         }
 
         .error {
-            text-align: center;
-            margin-top: 12px;
-            color: red;
-            font-size: 14px;
+            margin-top: 15px;
+            padding: 12px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #991b1b;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        @media (max-width: 780px) {
+        .error i {
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
             .container {
                 flex-direction: column;
-                width: 90%;
             }
 
-            .right {
-                border-radius: 0 0 15px 15px;
+            .left {
+                padding: 30px 20px;
             }
 
             .left img {
-                width: 180px;
+                width: 150px;
+            }
+
+            .left h3 {
+                font-size: 20px;
+            }
+
+            .right {
+                padding: 40px 30px;
+            }
+
+            h2 {
+                font-size: 24px;
             }
         }
     </style>
@@ -127,29 +218,51 @@
 <div class="container">
 
     <div class="left">
-        <img src="{{ asset('spartix.png') }}" alt="logo">
+        <img src="{{ asset('spartix.png') }}" alt="SPARTIX Logo">
+        <h3>Bergabung dengan SPARTIX</h3>
+        <p>Daftarkan akun Anda dan mulai kelola bisnis dengan lebih mudah dan efisien</p>
     </div>
 
+    
     <div class="right">
-        <h2>Create Account</h2>
+        <h2>Buat Akun Baru</h2>
+        <p class="subtitle">Isi formulir di bawah untuk membuat akun</p>
 
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
-            <input type="text" name="name" placeholder="Full Name" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
+            <div class="input-group">
+                <i class='bx bx-user'></i>
+                <input type="text" name="name" placeholder="Nama Lengkap" value="{{ old('name') }}" required autofocus>
+            </div>
 
-            <button class="btn">Register</button>
+            <div class="input-group">
+                <i class='bx bx-envelope'></i>
+                <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required>
+            </div>
 
-            <div class="links">
-                <a href="/login">Already have an account?</a>
+            <div class="input-group">
+                <i class='bx bx-lock-alt'></i>
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="input-group">
+                <i class='bx bx-lock-alt'></i>
+                <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required>
             </div>
 
             @if($errors->any())
-                <p class="error">{{ $errors->first() }}</p>
+                <div class="error">
+                    <i class='bx bx-error-circle'></i>
+                    <span>{{ $errors->first() }}</span>
+                </div>
             @endif
+
+            <button type="submit" class="btn">Daftar Sekarang</button>
+
+            <div class="links">
+                Sudah punya akun? <a href="{{ route('login') }}">Masuk di sini</a>
+            </div>
 
         </form>
     </div>

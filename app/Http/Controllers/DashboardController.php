@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
 use App\Models\Product;
+use App\Models\Pesanan;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -39,13 +41,8 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Statistik per kategori karyawan
-        $karyawanStats = Karyawan::select('kategori', DB::raw('count(*) as total'))
-            ->groupBy('kategori')
-            ->get();
-
-        // Statistik per jabatan
-        $jabatanStats = Karyawan::select('jabatan', DB::raw('count(*) as total'))
+        // Karyawan berdasarkan Jabatan
+        $karyawanByJabatan = Karyawan::select('jabatan', DB::raw('count(*) as total'))
             ->groupBy('jabatan')
             ->get();
 
@@ -55,49 +52,60 @@ class DashboardController extends Controller
             'topProducts',
             'recentKaryawan',
             'lowStockProducts',
-            'karyawanStats',
-            'jabatanStats'
+            'karyawanByJabatan'
         ));
     }
 
-    // Helper method untuk total penjualan (dummy data, sesuaikan dengan tabel transaksi Anda)
+    // Total penjualan dari Transaksi yang Success
     private function getTotalPenjualan()
     {
-        // Jika ada tabel transaksi, gunakan:
-        // return DB::table('transaksi')->sum('total');
-        
-        // Untuk sekarang return dummy data
-        return 'Rp ' . number_format(45250000, 0, ',', '.');
+        $total = Transaksi::where('status', 'Success')->sum('total_transaksi');
+        return 'Rp ' . number_format($total, 0, ',', '.');
     }
 
-    // Helper method untuk total order (dummy data)
+    // Total order dari Pesanan
     private function getTotalOrder()
     {
-        // Jika ada tabel order, gunakan:
-        // return DB::table('orders')->count();
-        
-        return 247;
+        return Pesanan::count();
     }
 
-    // Helper method untuk data chart penjualan
+    // Data chart penjualan dari Pesanan yang Complete (6 bulan terakhir)
     private function getSalesChartData()
     {
-        // Jika ada tabel transaksi, ambil data per bulan:
-        /*
-        $salesByMonth = DB::table('transaksi')
+        // Ambil data pesanan complete 6 bulan terakhir
+        $sixMonthsAgo = now()->subMonths(6)->startOfMonth();
+        
+        $pesananComplete = Pesanan::where('status', 'Complete')
+            ->where('tanggal_pembayaran', '>=', $sixMonthsAgo)
             ->select(
-                DB::raw('MONTH(created_at) as month'),
-                DB::raw('SUM(total) as total')
+                DB::raw('DATE_FORMAT(tanggal_pembayaran, "%Y-%m") as month'),
+                DB::raw('SUM(jumlah_pesanan) as total')
             )
-            ->whereYear('created_at', date('Y'))
             ->groupBy('month')
+            ->orderBy('month', 'asc')
             ->get();
-        */
 
-        // Untuk sekarang return dummy data
+        // Buat array untuk 6 bulan terakhir
+        $labels = [];
+        $data = [];
+        
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $monthKey = $month->format('Y-m');
+            $monthLabel = $month->format('M Y');
+            
+            $labels[] = $monthLabel;
+            
+            // Cari data untuk bulan ini
+            $monthData = $pesananComplete->firstWhere('month', $monthKey);
+            
+            // Tampilkan total jumlah pesanan
+            $data[] = $monthData ? $monthData->total : 0;
+        }
+
         return [
-            'labels' => ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
-            'data' => [650, 800, 560, 900, 750, 950]
+            'labels' => $labels,
+            'data' => $data
         ];
     }
 }

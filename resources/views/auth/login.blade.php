@@ -5,119 +5,204 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SPARTIX</title>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
     <style>
-        body {
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #587d84, #20373f);
-            height: 100vh;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .container {
             display: flex;
-            width: 75%;
-            max-width: 1050px;
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 22px;
+            width: 100%;
+            max-width: 950px;
+            background: white;
+            border-radius: 20px;
             overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
+        /* LEFT */
         .left {
             flex: 1;
-            background: rgba(255, 255, 255, 0.13);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            padding: 20px;
+            padding: 40px;
+            color: white;
         }
 
-        .left img {
-            width: 250px;
+        /* LOGO BULAT */
+        .logo-circle {
+            width: 160px;
+            height: 160px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .logo-circle img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain; /* LOGO FULL, TIDAK TERPOTONG */
+        }
+
+        .left h3 {
+            font-size: 24px;
+            font-weight: 600;
             margin-bottom: 10px;
+            text-align: center;
         }
 
+        .left p {
+            font-size: 14px;
+            opacity: 0.9;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* RIGHT */
         .right {
             flex: 1.2;
-            background: rgba(255, 255, 255, 0.20);
-            padding: 50px 45px;
+            padding: 60px 50px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border-radius: 0px 20px 20px 0px;
         }
 
         h2 {
-            text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: #133c44;
+            color: #1e293b;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 20px;
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            margin: 12px 0;
-            border: none;
-            border-bottom: 2px solid #000000ff;
-            background: transparent;
-            font-size: 15px;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f8fafc;
+            font-size: 14px;
             outline: none;
-            color: #0e2a30;
+            color: #1e293b;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .btn {
             width: 100%;
-            margin-top: 22px;
+            margin-top: 10px;
             padding: 14px;
-            background: linear-gradient(to right, #144f57, #2f7b83);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: white;
             font-size: 16px;
             font-weight: 600;
-            border-radius: 30px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             transition: 0.3s;
+            font-family: 'Poppins', sans-serif;
         }
 
         .btn:hover {
-            opacity: 0.85;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
         }
 
         .links {
             display: flex;
             justify-content: space-between;
-            margin-top: 18px;
+            margin-top: 20px;
             font-size: 14px;
         }
 
         .links a {
-            color: #0f3341;
+            color: #2563eb;
             text-decoration: none;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
         }
 
         .error {
-            text-align: center;
-            margin-top: 12px;
-            color: red;
-            font-size: 14px;
+            margin-top: 15px;
+            padding: 12px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #991b1b;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        @media (max-width: 780px) {
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
             .container {
                 flex-direction: column;
-                width: 90%;
             }
 
             .right {
-                border-radius: 0 0 15px 15px;
+                padding: 40px 30px;
             }
 
-            .left img {
-                width: 180px;
+            .logo-circle {
+                width: 120px;
+                height: 120px;
             }
         }
     </style>
@@ -128,33 +213,46 @@
 <div class="container">
 
     <div class="left">
-        <img src="{{ asset('spartix.png') }}" alt="logo">
+        <div class="logo-circle">
+            <img src="{{ asset('spartix.png') }}" alt="SPARTIX Logo">
+        </div>
+        <h3>Selamat Datang Kembali!</h3>
+        <p>Kelola bisnis Anda dengan lebih mudah dan efisien bersama SPARTIX</p>
     </div>
 
-    
     <div class="right">
-        <h2>Login</h2>
+        <h2>Masuk ke Akun</h2>
+        <p class="subtitle">Masukkan email dan password Anda untuk melanjutkan</p>
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <input type="email" name="email" placeholder="Email" required>
+            <div class="input-group">
+                <i class='bx bx-envelope'></i>
+                <input type="email" name="email" placeholder="Email Address" required autofocus>
+            </div>
 
-            <input type="password" name="password" placeholder="Password" required>
-
-            <button class="btn">Login</button>
-
-            <div class="links">
-                <a href="/register">Create an account</a>
-                <a href="#">Forgot password?</a>
+            <div class="input-group">
+                <i class='bx bx-lock-alt'></i>
+                <input type="password" name="password" placeholder="Password" required>
             </div>
 
             @if($errors->any())
-                <p class="error">{{ $errors->first() }}</p>
+                <div class="error">
+                    <i class='bx bx-error-circle'></i>
+                    <span>{{ $errors->first() }}</span>
+                </div>
             @endif
 
+            <button type="submit" class="btn">Masuk</button>
+
+            <div class="links">
+                <a href="{{ route('register') }}">Buat Akun Baru</a>
+                <a href="#">Lupa Password?</a>
+            </div>
         </form>
     </div>
+
 </div>
 
 </body>

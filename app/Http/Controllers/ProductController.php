@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::latest()->get();
+        $products = Product::withCount('produksis')->latest()->get();
         return view('product.index', compact('products'));
     }
 
@@ -22,54 +21,40 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'product_name' => 'required|string|max:255',
-                'stock' => 'required|integer|min:0'
-            ]);
+        $validated = $request->validate([
+            'product_name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'product_name.required' => 'Nama produk harus diisi',
+            'product_name.max' => 'Nama produk maksimal 255 karakter',
+            'price.required' => 'Harga harus diisi',
+            'price.numeric' => 'Harga harus berupa angka',
+            'price.min' => 'Harga tidak boleh kurang dari 0',
+            'image.image' => 'File harus berupa gambar',
+            'image.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif',
+            'image.max' => 'Ukuran gambar maksimal 2MB',
+        ]);
 
-            if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                
-                $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-                $extension = strtolower($file->getClientOriginalExtension());
-                
-                if (!in_array($extension, $allowedExt)) {
-                    return back()->withInput()
-                        ->withErrors(['image' => 'File harus berupa gambar (jpg, png, gif, dll)']);
-                }
-                
-                if ($file->getSize() > 5242880) {
-                    return back()->withInput()
-                        ->withErrors(['image' => 'Ukuran file maksimal 5MB']);
-                }
-                
-                $filename = time() . '_' . uniqid() . '.' . $extension;
-                
-                $uploadPath = public_path('uploads/products');
-                if (!File::exists($uploadPath)) {
-                    File::makeDirectory($uploadPath, 0755, true);
-                }
-                
-                $file->move($uploadPath, $filename);
-                $validated['image'] = 'uploads/products/' . $filename;
-            }
+        // Set stok awal ke 0 (akan bertambah dari produksi)
+        $validated['stock'] = 0;
 
-            Product::create($validated);
-
-            return redirect()->route('product.index')
-                ->with('success', 'Produk berhasil ditambahkan!');
-
-        } catch (\Exception $e) {
-            Log::error('Error creating product: ' . $e->getMessage());
-            return back()->withInput()
-                ->withErrors(['error' => 'Gagal menyimpan produk: ' . $e->getMessage()]);
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+            $validated['image'] = $imagePath;
         }
+
+        Product::create($validated);
+
+        return redirect()->route('product.index')
+            ->with('success', 'Produk berhasil ditambahkan! Stok akan bertambah otomatis dari produksi.');
     }
 
-    // Method SHOW - Detail Produk
     public function show(Product $product)
     {
+        $product->load(['produksis' => function($query) {
+            $query->with('karyawan')->latest();
+        }]);
         return view('product.show', compact('product'));
     }
 
@@ -80,70 +65,51 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        try {
-            $validated = $request->validate([
-                'product_name' => 'required|string|max:255',
-                'stock' => 'required|integer|min:0'
-            ]);
+        $validated = $request->validate([
+            'product_name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'product_name.required' => 'Nama produk harus diisi',
+            'product_name.max' => 'Nama produk maksimal 255 karakter',
+            'price.required' => 'Harga harus diisi',
+            'price.numeric' => 'Harga harus berupa angka',
+            'price.min' => 'Harga tidak boleh kurang dari 0',
+            'image.image' => 'File harus berupa gambar',
+            'image.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif',
+            'image.max' => 'Ukuran gambar maksimal 2MB',
+        ]);
 
-            if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                
-                $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-                $extension = strtolower($file->getClientOriginalExtension());
-                
-                if (!in_array($extension, $allowedExt)) {
-                    return back()->withInput()
-                        ->withErrors(['image' => 'File harus berupa gambar (jpg, png, gif, dll)']);
-                }
-                
-                if ($file->getSize() > 5242880) {
-                    return back()->withInput()
-                        ->withErrors(['image' => 'Ukuran file maksimal 5MB']);
-                }
-                
-                if ($product->image && File::exists(public_path($product->image))) {
-                    File::delete(public_path($product->image));
-                }
-                
-                $filename = time() . '_' . uniqid() . '.' . $extension;
-                
-                $uploadPath = public_path('uploads/products');
-                if (!File::exists($uploadPath)) {
-                    File::makeDirectory($uploadPath, 0755, true);
-                }
-                
-                $file->move($uploadPath, $filename);
-                $validated['image'] = 'uploads/products/' . $filename;
+        if ($request->hasFile('image')) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
             }
-
-            $product->update($validated);
-
-            return redirect()->route('product.index')
-                ->with('success', 'Produk berhasil diupdate!');
-
-        } catch (\Exception $e) {
-            Log::error('Error updating product: ' . $e->getMessage());
-            return back()->withInput()
-                ->withErrors(['error' => 'Gagal mengupdate produk: ' . $e->getMessage()]);
+            
+            $imagePath = $request->file('image')->store('products', 'public');
+            $validated['image'] = $imagePath;
         }
+
+        $product->update($validated);
+
+        return redirect()->route('product.index')
+            ->with('success', 'Produk berhasil diperbarui!');
     }
 
     public function destroy(Product $product)
     {
-        try {
-            if ($product->image && File::exists(public_path($product->image))) {
-                File::delete(public_path($product->image));
-            }
-
-            $product->delete();
-            
+        // Cek apakah produk memiliki data produksi
+        if ($product->produksis()->count() > 0) {
             return redirect()->route('product.index')
-                ->with('success', 'Produk berhasil dihapus!');
-
-        } catch (\Exception $e) {
-            Log::error('Error deleting product: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Gagal menghapus produk: ' . $e->getMessage()]);
+                ->with('error', 'Produk tidak dapat dihapus karena memiliki data produksi!');
         }
+
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        $product->delete();
+
+        return redirect()->route('product.index')
+            ->with('success', 'Produk berhasil dihapus!');
     }
 }
