@@ -11,8 +11,7 @@
 
     .dashboard-container {
         max-width: 100%;
-        padding: 0 10px 30px 10px;
-        overflow-x: hidden;
+        padding: 0;
     }
 
     .dashboard-header {
@@ -21,39 +20,37 @@
 
     .dashboard-header h2 {
         margin: 0;
-        font-size: clamp(22px, 4vw, 28px);
-        font-weight: 600;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-size: clamp(24px, 4vw, 32px);
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
     .dashboard-header p {
-        margin: 5px 0 0 0;
-        opacity: 0.7;
-        font-size: 14px;
+        margin: 8px 0 0 0;
+        opacity: 0.8;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.9);
     }
 
-    /* Stats Cards - Responsive Grid */
+    /* Stats Cards - Blue Theme */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 25px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
     }
 
     .stat-card {
-        background: rgba(255,255,255,0.12);
-        backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 16px;
-        padding: 20px;
-        color: white;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        padding: 24px;
+        color: #1e3a8a;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid rgba(30, 58, 138, 0.1);
     }
 
     .stat-card::before {
@@ -61,59 +58,52 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        opacity: 0;
-        transition: opacity 0.3s;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #2563eb, #1e40af);
+        transition: all 0.3s;
     }
 
     .stat-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 48px rgba(102, 126, 234, 0.3);
-        border-color: rgba(102, 126, 234, 0.4);
-    }
-
-    .stat-card:hover::before {
-        opacity: 1;
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
+        background: rgba(255, 255, 255, 1);
     }
 
     .stat-card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 15px;
+        margin-bottom: 18px;
     }
 
     .stat-card-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
-        background: rgba(255,255,255,0.1);
+        font-size: 26px;
+        color: white;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     }
 
-    .stat-card-icon.purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .stat-card-icon.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    .stat-card-icon.green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-    .stat-card-icon.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-    .stat-card-icon.pink { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-
     .stat-card-title {
-        font-size: 13px;
-        opacity: 0.8;
-        margin: 0;
+        font-size: 14px;
+        color: #64748b;
+        margin: 0 0 8px 0;
         font-weight: 500;
+        letter-spacing: 0.3px;
     }
 
     .stat-card-value {
-        font-size: clamp(24px, 5vw, 32px);
+        font-size: clamp(28px, 5vw, 36px);
         font-weight: 700;
         margin: 0;
-        line-height: 1.2;
+        line-height: 1.1;
+        color: #1e3a8a;
     }
 
     /* Content Grid */
@@ -121,7 +111,7 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 20px;
-        margin-top: 25px;
+        margin-top: 30px;
     }
 
     @media (min-width: 1200px) {
@@ -131,23 +121,21 @@
     }
 
     .chart-card, .table-card {
-        background: rgba(255,255,255,0.12);
-        backdrop-filter: blur(20px);
-        padding: 25px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 28px;
         border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-        border: 1px solid rgba(255,255,255,0.1);
-        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(30, 58, 138, 0.1);
     }
 
     .card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid rgba(255,255,255,0.1);
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 18px;
+        border-bottom: 2px solid rgba(37, 99, 235, 0.15);
     }
 
     .card-header-left {
@@ -157,28 +145,31 @@
     }
 
     .card-header i {
-        font-size: 24px;
-        color: #667eea;
+        font-size: 26px;
+        color: #2563eb;
     }
 
     .card-header h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: 19px;
         font-weight: 600;
+        color: #1e3a8a;
     }
 
     .view-all-link {
-        color: #667eea;
+        color: #2563eb;
         text-decoration: none;
         font-size: 13px;
         display: flex;
         align-items: center;
         gap: 5px;
-        transition: 0.3s;
+        transition: all 0.3s;
+        font-weight: 500;
     }
 
     .view-all-link:hover {
-        color: #764ba2;
+        color: #1e40af;
+        gap: 8px;
     }
 
     /* Table Styles */
@@ -190,63 +181,86 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        color: white;
+        color: #1e3a8a;
         font-size: 14px;
-        min-width: 500px;
     }
 
     table thead {
-        background: rgba(255,255,255,0.08);
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
     }
 
     table th {
-        padding: 12px 15px;
+        padding: 14px 16px;
         text-align: left;
         font-weight: 600;
-        font-size: 13px;
+        font-size: 12px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        opacity: 0.9;
-        border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        letter-spacing: 0.8px;
+        color: white;
+        border: none;
     }
 
     table td {
-        padding: 12px 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+        color: #334155;
     }
 
     table tbody tr {
         transition: all 0.2s;
+        background: white;
     }
 
     table tbody tr:hover {
-        background: rgba(102, 126, 234, 0.15);
+        background: rgba(37, 99, 235, 0.05);
     }
 
     table td strong {
-        color: #667eea;
+        color: #2563eb;
         font-weight: 600;
     }
 
     .stock-badge {
-        padding: 4px 10px;
-        border-radius: 12px;
+        padding: 6px 14px;
+        border-radius: 20px;
         font-size: 11px;
-        font-weight: 500;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        display: inline-block;
     }
 
-    .stock-high { background: rgba(67, 233, 123, 0.2); color: #43e97b; }
-    .stock-low { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+    .stock-high { 
+        background: rgba(34, 197, 94, 0.15); 
+        color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    
+    .stock-low { 
+        background: rgba(239, 68, 68, 0.15); 
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
 
     .badge {
-        padding: 4px 10px;
-        border-radius: 12px;
+        padding: 6px 14px;
+        border-radius: 20px;
         font-size: 11px;
-        font-weight: 500;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        display: inline-block;
     }
 
-    .badge-admin { background: rgba(102, 126, 234, 0.2); color: #667eea; }
-    .badge-produksi { background: rgba(240, 147, 251, 0.2); color: #f093fb; }
+    .badge-admin { 
+        background: rgba(37, 99, 235, 0.15); 
+        color: #2563eb;
+        border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+    
+    .badge-produksi { 
+        background: rgba(168, 85, 247, 0.15); 
+        color: #9333ea;
+        border: 1px solid rgba(168, 85, 247, 0.3);
+    }
 
     /* Chart Container */
     .chart-container {
@@ -255,33 +269,44 @@
         max-height: 400px;
     }
 
+    .empty-state {
+        text-align: center;
+        color: #64748b;
+        padding: 40px 20px;
+        font-size: 14px;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        opacity: 0.3;
+        margin-bottom: 10px;
+        display: block;
+        color: #2563eb;
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 0 5px 20px 5px;
-        }
-
         .stats-grid {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
         }
 
         .stat-card {
-            padding: 15px;
+            padding: 18px;
         }
 
         .stat-card-icon {
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
         }
 
         .chart-card, .table-card {
-            padding: 15px;
+            padding: 20px;
         }
 
         .card-header h3 {
-            font-size: 16px;
+            font-size: 17px;
         }
 
         table {
@@ -289,7 +314,7 @@
         }
 
         table th, table td {
-            padding: 10px 12px;
+            padding: 12px 14px;
         }
     }
 
@@ -303,7 +328,7 @@
         }
 
         .stat-card-value {
-            font-size: 20px;
+            font-size: 22px;
         }
     }
 
@@ -320,16 +345,15 @@
     }
 
     .stat-card, .chart-card, .table-card {
-        animation: fadeInUp 0.6s ease-out backwards;
+        animation: fadeInUp 0.5s ease-out backwards;
     }
 
-    .stat-card:nth-child(1) { animation-delay: 0.1s; }
-    .stat-card:nth-child(2) { animation-delay: 0.2s; }
-    .stat-card:nth-child(3) { animation-delay: 0.3s; }
-    .stat-card:nth-child(4) { animation-delay: 0.4s; }
-    .stat-card:nth-child(5) { animation-delay: 0.5s; }
-    .chart-card { animation-delay: 0.6s; }
-    .table-card { animation-delay: 0.7s; }
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .chart-card { animation-delay: 0.25s; }
+    .table-card { animation-delay: 0.3s; }
 </style>
 
 <div class="dashboard-container">
@@ -344,7 +368,7 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-card-header">
-                <div class="stat-card-icon purple">
+                <div class="stat-card-icon">
                     <i class='bx bx-dollar-circle'></i>
                 </div>
             </div>
@@ -354,17 +378,7 @@
 
         <div class="stat-card">
             <div class="stat-card-header">
-                <div class="stat-card-icon blue">
-                    <i class='bx bx-package'></i>
-                </div>
-            </div>
-            <p class="stat-card-title">Total Stock</p>
-            <h3 class="stat-card-value">{{ number_format($stats['stock_products']) }}</h3>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon green">
+                <div class="stat-card-icon">
                     <i class='bx bx-cart'></i>
                 </div>
             </div>
@@ -374,7 +388,7 @@
 
         <div class="stat-card">
             <div class="stat-card-header">
-                <div class="stat-card-icon orange">
+                <div class="stat-card-icon">
                     <i class='bx bx-user'></i>
                 </div>
             </div>
@@ -384,7 +398,7 @@
 
         <div class="stat-card">
             <div class="stat-card-header">
-                <div class="stat-card-icon pink">
+                <div class="stat-card-icon">
                     <i class='bx bx-box'></i>
                 </div>
             </div>
@@ -440,7 +454,10 @@
                     </tbody>
                 </table>
                 @else
-                <p style="text-align: center; opacity: 0.6; padding: 20px;">Semua produk stock aman ✓</p>
+                <div class="empty-state">
+                    <i class='bx bx-check-circle'></i>
+                    <p>Semua produk stock aman ✓</p>
+                </div>
                 @endif
             </div>
         </div>
@@ -486,7 +503,10 @@
                 </tbody>
             </table>
             @else
-            <p style="text-align: center; opacity: 0.6; padding: 20px;">Belum ada data produk</p>
+            <div class="empty-state">
+                <i class='bx bx-package'></i>
+                <p>Belum ada data produk</p>
+            </div>
             @endif
         </div>
     </div>
@@ -525,7 +545,10 @@
                 </tbody>
             </table>
             @else
-            <p style="text-align: center; opacity: 0.6; padding: 20px;">Belum ada data karyawan</p>
+            <div class="empty-state">
+                <i class='bx bx-user'></i>
+                <p>Belum ada data karyawan</p>
+            </div>
             @endif
         </div>
     </div>
@@ -537,29 +560,29 @@
 <script>
 const ctx = document.getElementById('salesChart');
 
-// Gradient for chart
+// Gradient for chart - Blue Theme
 const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0, 'rgba(102, 126, 234, 0.4)');
-gradient.addColorStop(1, 'rgba(102, 126, 234, 0.01)');
+gradient.addColorStop(0, 'rgba(37, 99, 235, 0.3)');
+gradient.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
 
 new Chart(ctx, {
     type: 'line',
     data: {
         labels: {!! json_encode($salesData['labels']) !!},
         datasets: [{
-            label: "Penjualan (dalam ribuan)",
+            label: "Total Pesanan",
             tension: 0.4,
             data: {!! json_encode($salesData['data']) !!},
-            borderColor: "#667eea",
+            borderColor: "#2563eb",
             backgroundColor: gradient,
             borderWidth: 3,
             fill: true,
-            pointBackgroundColor: "#667eea",
+            pointBackgroundColor: "#2563eb",
             pointBorderColor: "#fff",
             pointBorderWidth: 2,
             pointRadius: 5,
             pointHoverRadius: 8,
-            pointHoverBackgroundColor: "#764ba2",
+            pointHoverBackgroundColor: "#1e40af",
             pointHoverBorderWidth: 3
         }]
     },
@@ -577,7 +600,7 @@ new Chart(ctx, {
                 position: 'top',
                 align: 'end',
                 labels: { 
-                    color: "white",
+                    color: "#1e3a8a",
                     font: {
                         size: 13,
                         family: 'Poppins',
@@ -589,9 +612,9 @@ new Chart(ctx, {
                 }
             },
             tooltip: {
-                backgroundColor: 'rgba(0,0,0,0.85)',
+                backgroundColor: 'rgba(30, 58, 138, 0.95)',
                 padding: 15,
-                cornerRadius: 8,
+                cornerRadius: 10,
                 titleFont: {
                     size: 14,
                     family: 'Poppins',
@@ -603,7 +626,7 @@ new Chart(ctx, {
                 },
                 callbacks: {
                     label: function(context) {
-                        return 'Penjualan: Rp ' + context.parsed.y.toLocaleString('id-ID') + 'K';
+                        return 'Total Pesanan: ' + context.parsed.y + ' pesanan';
                     }
                 }
             }
@@ -611,30 +634,30 @@ new Chart(ctx, {
         scales: {
             x: { 
                 ticks: { 
-                    color: "rgba(255,255,255,0.8)",
+                    color: "#64748b",
                     font: {
                         size: 12,
                         family: 'Poppins'
                     }
                 },
                 grid: {
-                    color: 'rgba(255,255,255,0.05)',
+                    color: 'rgba(37, 99, 235, 0.1)',
                     drawBorder: false
                 }
             },
             y: { 
                 ticks: { 
-                    color: "rgba(255,255,255,0.8)",
+                    color: "#64748b",
                     font: {
                         size: 12,
                         family: 'Poppins'
                     },
                     callback: function(value) {
-                        return value + 'K';
+                        return value;
                     }
                 },
                 grid: {
-                    color: 'rgba(255,255,255,0.08)',
+                    color: 'rgba(37, 99, 235, 0.1)',
                     drawBorder: false
                 }
             }
