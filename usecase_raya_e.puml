@@ -1,0 +1,232 @@
+@startuml usecase_raya_e
+' ============================================================
+' USE CASE DIAGRAM - RAYA-E Inventory & Accounting System
+' Paste ke https://www.plantuml.com/plantuml/uml/ untuk render
+' ============================================================
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #555555
+  ArrowColor #333333
+}
+skinparam actor {
+  BackgroundColor #D6EAF8
+  BorderColor #2980B9
+}
+
+' ============================================================
+' ACTORS
+' ============================================================
+actor "Admin" as admin #D6EAF8
+actor "Owner" as owner #D5F5E3
+actor "Sistem" as sistem #FDEBD0
+
+' ============================================================
+' SYSTEM BOUNDARY
+' ============================================================
+rectangle "RAYA-E — Sistem Manajemen Inventori & Akuntansi" {
+
+  ' ----------------------------------------------------------
+  ' AUTENTIKASI
+  ' ----------------------------------------------------------
+  package "Autentikasi" {
+    usecase "Login" as UC_LOGIN
+    usecase "Logout" as UC_LOGOUT
+  }
+
+  ' ----------------------------------------------------------
+  ' DASHBOARD
+  ' ----------------------------------------------------------
+  package "Dashboard" {
+    usecase "Lihat Dashboard" as UC_DASHBOARD
+    usecase "Lihat Statistik Stok" as UC_STAT_STOK
+    usecase "Lihat Statistik Penjualan" as UC_STAT_JUAL
+    usecase "Lihat Grafik Penjualan 7 Hari" as UC_GRAFIK
+    usecase "Lihat Barang Terlaris" as UC_TERLARIS
+    usecase "Lihat Notifikasi Stok Rendah" as UC_NOTIF_STOK
+  }
+
+  ' ----------------------------------------------------------
+  ' MASTER DATA BARANG (Admin only)
+  ' ----------------------------------------------------------
+  package "Master Data Barang" {
+    usecase "Lihat Daftar Barang" as UC_BARANG_LIST
+    usecase "Tambah Barang" as UC_BARANG_ADD
+    usecase "Edit Barang" as UC_BARANG_EDIT
+    usecase "Hapus Barang" as UC_BARANG_DEL
+    usecase "Cari & Filter Barang" as UC_BARANG_FILTER
+    usecase "Lihat Detail Barang" as UC_BARANG_SHOW
+    usecase "Generate Kode Barang Otomatis" as UC_KODE_AUTO
+  }
+
+  ' ----------------------------------------------------------
+  ' CHART OF ACCOUNTS (Admin only)
+  ' ----------------------------------------------------------
+  package "Chart of Accounts (COA)" {
+    usecase "Lihat Daftar Akun" as UC_COA_LIST
+    usecase "Tambah Akun" as UC_COA_ADD
+    usecase "Edit Akun" as UC_COA_EDIT
+    usecase "Hapus Akun" as UC_COA_DEL
+    usecase "Atur Hierarki Akun (Parent-Child)" as UC_COA_PARENT
+  }
+
+  ' ----------------------------------------------------------
+  ' TRANSAKSI BARANG MASUK (Admin only)
+  ' ----------------------------------------------------------
+  package "Transaksi Barang Masuk" {
+    usecase "Lihat Daftar Barang Masuk" as UC_BM_LIST
+    usecase "Catat Barang Masuk" as UC_BM_ADD
+    usecase "Lihat Detail Barang Masuk" as UC_BM_SHOW
+    usecase "Hapus Barang Masuk" as UC_BM_DEL
+    usecase "Generate Serial Number Otomatis" as UC_SN_GEN
+    usecase "Buat Jurnal Pembelian Otomatis" as UC_JURNAL_BELI
+  }
+
+  ' ----------------------------------------------------------
+  ' TRANSAKSI BARANG KELUAR / PENJUALAN (Admin only)
+  ' ----------------------------------------------------------
+  package "Transaksi Barang Keluar" {
+    usecase "Lihat Daftar Penjualan" as UC_BK_LIST
+    usecase "Catat Penjualan (Multi-Item)" as UC_BK_ADD
+    usecase "Lihat Invoice Penjualan" as UC_BK_INVOICE
+    usecase "Hapus Transaksi Penjualan" as UC_BK_DEL
+    usecase "Hitung HPP & Laba (FIFO)" as UC_FIFO
+    usecase "Buat Jurnal Penjualan Otomatis" as UC_JURNAL_JUAL
+  }
+
+  ' ----------------------------------------------------------
+  ' SERIAL NUMBER (Admin only)
+  ' ----------------------------------------------------------
+  package "Manajemen Serial Number" {
+    usecase "Lihat Daftar Serial Number" as UC_SN_LIST
+    usecase "Lihat Detail Serial Number" as UC_SN_SHOW
+    usecase "Cari & Filter Serial Number" as UC_SN_FILTER
+  }
+
+  ' ----------------------------------------------------------
+  ' LAPORAN (Admin & Owner)
+  ' ----------------------------------------------------------
+  package "Laporan Inventori" {
+    usecase "Laporan Stok Barang" as UC_LAP_STOK
+    usecase "Kartu Stok FIFO" as UC_LAP_KARTU
+    usecase "Laporan Penjualan" as UC_LAP_JUAL
+    usecase "Export PDF" as UC_EXPORT_PDF
+    usecase "Export Excel" as UC_EXPORT_XLS
+  }
+
+  package "Laporan Akuntansi" {
+    usecase "Laporan Jurnal Umum" as UC_LAP_JURNAL
+    usecase "Laporan Buku Besar" as UC_LAP_BB
+    usecase "Detail Buku Besar per Akun" as UC_LAP_BB_DETAIL
+  }
+
+  ' ----------------------------------------------------------
+  ' PROFIL (Admin & Owner)
+  ' ----------------------------------------------------------
+  package "Profil Pengguna" {
+    usecase "Lihat Profil & Email" as UC_PROFIL
+    usecase "Ubah Password" as UC_PROFIL_PASS
+  }
+
+}
+
+' ============================================================
+' RELASI ACTOR → USE CASE
+' ============================================================
+
+' --- ADMIN ---
+admin --> UC_LOGIN
+admin --> UC_LOGOUT
+admin --> UC_DASHBOARD
+admin --> UC_BARANG_LIST
+admin --> UC_BARANG_ADD
+admin --> UC_BARANG_EDIT
+admin --> UC_BARANG_DEL
+admin --> UC_BARANG_FILTER
+admin --> UC_BARANG_SHOW
+admin --> UC_COA_LIST
+admin --> UC_COA_ADD
+admin --> UC_COA_EDIT
+admin --> UC_COA_DEL
+admin --> UC_BM_LIST
+admin --> UC_BM_ADD
+admin --> UC_BM_SHOW
+admin --> UC_BM_DEL
+admin --> UC_BK_LIST
+admin --> UC_BK_ADD
+admin --> UC_BK_INVOICE
+admin --> UC_BK_DEL
+admin --> UC_SN_LIST
+admin --> UC_SN_SHOW
+admin --> UC_SN_FILTER
+admin --> UC_LAP_STOK
+admin --> UC_LAP_KARTU
+admin --> UC_LAP_JUAL
+admin --> UC_LAP_JURNAL
+admin --> UC_LAP_BB
+admin --> UC_LAP_BB_DETAIL
+admin --> UC_PROFIL
+admin --> UC_PROFIL_PASS
+
+' --- OWNER ---
+owner --> UC_LOGIN
+owner --> UC_LOGOUT
+owner --> UC_DASHBOARD
+owner --> UC_LAP_STOK
+owner --> UC_LAP_KARTU
+owner --> UC_LAP_JUAL
+owner --> UC_LAP_JURNAL
+owner --> UC_LAP_BB
+owner --> UC_LAP_BB_DETAIL
+owner --> UC_PROFIL
+owner --> UC_PROFIL_PASS
+
+' --- SISTEM (proses otomatis) ---
+sistem --> UC_KODE_AUTO
+sistem --> UC_SN_GEN
+sistem --> UC_JURNAL_BELI
+sistem --> UC_JURNAL_JUAL
+sistem --> UC_FIFO
+
+' ============================================================
+' RELASI INCLUDE / EXTEND
+' ============================================================
+
+' Barang Masuk — include proses otomatis
+UC_BM_ADD ..> UC_SN_GEN       : <<include>>
+UC_BM_ADD ..> UC_JURNAL_BELI  : <<include>>
+UC_BARANG_ADD ..> UC_KODE_AUTO : <<include>>
+
+' Barang Keluar — include proses otomatis
+UC_BK_ADD ..> UC_FIFO         : <<include>>
+UC_BK_ADD ..> UC_JURNAL_JUAL  : <<include>>
+
+' Laporan — extend export
+UC_LAP_STOK  ..> UC_EXPORT_PDF : <<extend>>
+UC_LAP_STOK  ..> UC_EXPORT_XLS : <<extend>>
+UC_LAP_JUAL  ..> UC_EXPORT_PDF : <<extend>>
+UC_LAP_JUAL  ..> UC_EXPORT_XLS : <<extend>>
+UC_LAP_JURNAL ..> UC_EXPORT_PDF : <<extend>>
+UC_LAP_JURNAL ..> UC_EXPORT_XLS : <<extend>>
+UC_LAP_BB    ..> UC_EXPORT_PDF : <<extend>>
+UC_LAP_BB    ..> UC_EXPORT_XLS : <<extend>>
+UC_LAP_KARTU ..> UC_EXPORT_PDF : <<extend>>
+
+' COA — include hierarki
+UC_COA_ADD ..> UC_COA_PARENT  : <<extend>>
+UC_COA_EDIT ..> UC_COA_PARENT : <<extend>>
+
+' Dashboard — include sub-statistik
+UC_DASHBOARD ..> UC_STAT_STOK   : <<include>>
+UC_DASHBOARD ..> UC_STAT_JUAL   : <<include>>
+UC_DASHBOARD ..> UC_GRAFIK      : <<include>>
+UC_DASHBOARD ..> UC_TERLARIS    : <<include>>
+UC_DASHBOARD ..> UC_NOTIF_STOK  : <<include>>
+
+' Buku Besar detail
+UC_LAP_BB ..> UC_LAP_BB_DETAIL : <<extend>>
+
+@enduml

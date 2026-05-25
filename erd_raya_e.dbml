@@ -1,0 +1,216 @@
+// ============================================================
+// ERD - RAYA-E Inventory & Accounting System
+// Paste ke https://dbdiagram.io untuk melihat diagram visual
+// ============================================================
+
+Project RAYA_E {
+  database_type: 'MySQL'
+  Note: 'Sistem Manajemen Inventori & Akuntansi Toko Elektronik'
+}
+
+// ============================================================
+// TABEL: users
+// ============================================================
+Table users {
+  id                bigint       [pk, increment]
+  name              varchar(255) [not null]
+  email             varchar(255) [unique, not null]
+  phone             varchar(20)  [null]
+  address           text         [null]
+  photo             varchar(255) [null]
+  email_verified_at timestamp    [null]
+  password          varchar(255) [not null]
+  role              enum         [not null, note: 'admin | owner']
+  remember_token    varchar(100) [null]
+  created_at        timestamp    [null]
+  updated_at        timestamp    [null]
+
+  Note: 'Pengguna sistem (admin & owner)'
+}
+
+// ============================================================
+// TABEL: access_codes
+// ============================================================
+Table access_codes {
+  id           bigint       [pk, increment]
+  code         varchar(20)  [unique, not null]
+  description  varchar(255) [null]
+  for_role     enum         [not null, note: 'admin | owner']
+  is_active    boolean      [not null, default: true]
+  max_uses     int          [null]
+  current_uses int          [not null, default: 0]
+  expires_at   timestamp    [null]
+  created_at   timestamp    [null]
+  updated_at   timestamp    [null]
+
+  Note: 'Kode akses untuk registrasi user baru'
+}
+
+// ============================================================
+// TABEL: password_reset_tokens
+// ============================================================
+Table password_reset_tokens {
+  email      varchar(255) [pk]
+  token      varchar(255) [not null]
+  created_at timestamp    [null]
+
+  Note: 'Token reset password'
+}
+
+// ============================================================
+// TABEL: sessions
+// ============================================================
+Table sessions {
+  id            varchar(255) [pk]
+  user_id       bigint       [null, ref: > users.id]
+  ip_address    varchar(45)  [null]
+  user_agent    text         [null]
+  payload       longtext     [not null]
+  last_activity int          [not null]
+
+  Note: 'Laravel session storage'
+}
+
+// ============================================================
+// TABEL: barang
+// ============================================================
+Table barang {
+  id           bigint        [pk, increment]
+  kode_barang  varchar(255)  [unique, not null]
+  nama_barang  varchar(255)  [not null]
+  kategori     varchar(255)  [not null, note: 'TV | AC | Kulkas | dll']
+  merk         varchar(255)  [not null]
+  harga        decimal(15,2) [not null, default: 0, note: 'Harga jual default']
+  stok         int           [not null, default: 0]
+  stok_minimum int           [not null, default: 5]
+  metode       enum          [not null, default: 'FIFO']
+  created_at   timestamp     [null]
+  updated_at   timestamp     [null]
+
+  Note: 'Master data barang elektronik'
+}
+
+// ============================================================
+// TABEL: barang_masuk  (Transaksi Pembelian)
+// ============================================================
+Table barang_masuk {
+  id              bigint        [pk, increment]
+  nomor_transaksi varchar(255)  [unique, not null, note: 'Format: BM-YYYYMMDD-0001']
+  barang_id       bigint        [not null, ref: > barang.id]
+  jumlah          int           [not null]
+  harga_beli      decimal(15,2) [not null, note: 'Harga beli per unit']
+  total_harga     decimal(15,2) [not null, note: 'harga_beli × jumlah']
+  tanggal_masuk   date          [not null]
+  supplier        varchar(255)  [null]
+  created_at      timestamp     [null]
+  updated_at      timestamp     [null]
+
+  Note: 'Transaksi pembelian barang'
+}
+
+// ============================================================
+// TABEL: serial_numbers
+// ============================================================
+Table serial_numbers {
+  id              bigint        [pk, increment]
+  serial_number   varchar(255)  [unique, not null]
+  barang_id       bigint        [not null, ref: > barang.id]
+  barang_masuk_id bigint        [not null, ref: > barang_masuk.id]
+  harga_beli      decimal(15,2) [not null, note: 'Harga beli unit ini — dasar FIFO']
+  status          enum          [not null, default: 'READY', note: 'READY | TERJUAL']
+  tanggal_masuk   date          [not null]
+  tanggal_keluar  date          [null]
+  created_at      timestamp     [null]
+  updated_at      timestamp     [null]
+
+  Note: 'Serial number per unit barang — dasar perhitungan FIFO'
+}
+
+// ============================================================
+// TABEL: barang_keluar  (Transaksi Penjualan)
+// ============================================================
+Table barang_keluar {
+  id                bigint        [pk, increment]
+  nomor_transaksi   varchar(255)  [not null, note: 'Format: BK-YYYYMMDD-0001 (index, bukan unique)']
+  barang_id         bigint        [not null, ref: > barang.id]
+  serial_number_id  bigint        [not null, ref: > serial_numbers.id]
+  hpp               decimal(15,2) [not null, note: 'Harga Pokok Penjualan (FIFO)']
+  harga_jual        decimal(15,2) [not null]
+  laba              decimal(15,2) [not null, note: 'harga_jual - hpp']
+  tanggal_keluar    date          [not null]
+  customer          varchar(255)  [null]
+  metode_pembayaran varchar(255)  [not null, default: 'tunai', note: 'tunai | transfer']
+  created_at        timestamp     [null]
+  updated_at        timestamp     [null]
+
+  Note: 'Transaksi penjualan — 1 baris per serial number terjual'
+}
+
+// ============================================================
+// TABEL: akuns  (Chart of Accounts)
+// ============================================================
+Table akuns {
+  id            bigint        [pk, increment]
+  kode_akun     varchar(20)   [unique, not null, note: '1101, 1201, 4101, dll']
+  nama_akun     varchar(255)  [not null]
+  tipe_akun     enum          [not null, note: 'Aset | Liabilitas | Ekuitas | Pendapatan | Beban']
+  kategori      enum          [null, note: 'Lancar | Tidak Lancar | Operasional | Non-Operasional']
+  saldo_normal  decimal(20,2) [not null, default: 0]
+  posisi_normal enum          [not null, note: 'Debit | Kredit']
+  parent_id     bigint        [null, ref: > akuns.id, note: 'Self-referencing untuk sub akun']
+  deskripsi     text          [null]
+  is_active     boolean       [not null, default: true]
+  created_at    timestamp     [null]
+  updated_at    timestamp     [null]
+
+  Note: 'Daftar akun keuangan (Chart of Accounts)'
+}
+
+// ============================================================
+// TABEL: jurnal_entries
+// ============================================================
+Table jurnal_entries {
+  id             bigint       [pk, increment]
+  no_jurnal      varchar(255) [unique, not null, note: 'Format: JUYYYYMMnnnn']
+  tanggal        date         [not null]
+  referensi      varchar(255) [null, note: 'ID transaksi sumber']
+  referensi_type varchar(255) [null, note: 'BarangMasuk | BarangKeluar']
+  keterangan     text         [not null]
+  user_id        bigint       [not null, ref: > users.id]
+  created_at     timestamp    [null]
+  updated_at     timestamp    [null]
+
+  Note: 'Header jurnal umum — dibuat otomatis saat transaksi'
+}
+
+// ============================================================
+// TABEL: jurnal_details
+// ============================================================
+Table jurnal_details {
+  id              bigint        [pk, increment]
+  jurnal_entry_id bigint        [not null, ref: > jurnal_entries.id]
+  akun_id         bigint        [not null, ref: > akuns.id]
+  debit           decimal(20,2) [not null, default: 0]
+  kredit          decimal(20,2) [not null, default: 0]
+  keterangan      text          [null]
+  created_at      timestamp     [null]
+  updated_at      timestamp     [null]
+
+  Note: 'Baris debit/kredit per akun dalam satu jurnal'
+}
+
+// ============================================================
+// RINGKASAN RELASI
+// ============================================================
+// users          1 --< jurnal_entries     (user membuat jurnal)
+// users          1 --< sessions           (user punya session)
+// barang         1 --< barang_masuk       (1 barang bisa dibeli berkali-kali)
+// barang         1 --< serial_numbers     (1 barang punya banyak unit ber-SN)
+// barang         1 --< barang_keluar      (1 barang bisa dijual berkali-kali)
+// barang_masuk   1 --< serial_numbers     (1 pembelian menghasilkan banyak SN)
+// serial_numbers 1 --o| barang_keluar     (1 SN hanya terjual 1x)
+// akuns          1 --< akuns              (self-ref: parent-child akun)
+// akuns          1 --< jurnal_details     (1 akun dipakai di banyak baris jurnal)
+// jurnal_entries 1 --< jurnal_details     (1 jurnal punya banyak baris debit/kredit)
+// access_codes   (standalone)
+// password_reset_tokens (standalone)

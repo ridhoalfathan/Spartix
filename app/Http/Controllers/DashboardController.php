@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Karyawan;
-use App\Models\Product;
-use App\Models\Pesanan;
-use App\Models\Transaksi;
+use App\Models\Barang;
+use App\Models\BarangMasuk;
+use App\Models\BarangKeluar;
+use App\Models\SerialNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,99 +13,82 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Statistik Cards
-        $stats = [
-            'total_penjualan' => $this->getTotalPenjualan(),
-            'stock_products' => Product::sum('stock'),
-            'total_order' => $this->getTotalOrder(),
-            'total_karyawan' => Karyawan::count(),
-            'total_products' => Product::count(),
-        ];
-
-        // Data untuk chart penjualan
-        $salesData = $this->getSalesChartData();
-
-        // Top Products berdasarkan stock terbanyak
-        $topProducts = Product::orderBy('stock', 'desc')
-            ->take(5)
+        // Total barang (unit dalam stok)
+        $totalBarang = Barang::sum('stok');
+        
+        // Barang masuk bulan ini
+        $barangMasukBulanIni = BarangMasuk::whereMonth('tanggal_masuk', now()->month)
+            ->whereYear('tanggal_masuk', now()->year)
+            ->sum('jumlah');
+        
+        // Barang keluar bulan ini
+        $barangKeluarBulanIni = BarangKeluar::whereMonth('tanggal_keluar', now()->month)
+            ->whereYear('tanggal_keluar', now()->year)
+            ->count();
+        
+        // Stok rendah (barang dengan stok <= stok_minimum dan > 0)
+        $stokRendah = Barang::whereColumn('stok', '<=', 'stok_minimum')
+            ->where('stok', '>', 0)
+            ->count();
+        
+        // Stok habis (barang dengan stok = 0)
+        $stokHabis = Barang::where('stok', '<=', 0)->count();
+        
+        // Total nilai penjualan bulan ini
+        $totalPenjualanBulanIni = BarangKeluar::whereMonth('tanggal_keluar', now()->month)
+            ->whereYear('tanggal_keluar', now()->year)
+            ->sum('harga_jual');
+        
+        // Total laba bulan ini
+        $totalLabaBulanIni = BarangKeluar::whereMonth('tanggal_keluar', now()->month)
+            ->whereYear('tanggal_keluar', now()->year)
+            ->sum('laba');
+        
+        // Barang dengan stok rendah untuk notifikasi (maksimal 5)
+        $barangStokRendah = Barang::whereColumn('stok', '<=', 'stok_minimum')
+            ->orderBy('stok', 'asc')
+            ->limit(5)
             ->get();
-
-        // Karyawan terbaru
-        $recentKaryawan = Karyawan::latest()
-            ->take(5)
+        
+        // Transaksi terakhir
+        $transaksiTerakhir = BarangKeluar::with(['barang', 'serialNumber'])
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
             ->get();
-
-        // Stock products yang rendah (< 100)
-        $lowStockProducts = Product::where('stock', '<', 100)
-            ->orderBy('stock', 'asc')
-            ->take(5)
+        
+        // Chart data - Penjualan 7 hari terakhir
+        $penjualan7Hari = BarangKeluar::select(
+                DB::raw('DATE(tanggal_keluar) as tanggal'),
+                DB::raw('COUNT(*) as jumlah'),
+                DB::raw('SUM(harga_jual) as total')
+            )
+            ->where('tanggal_keluar', '>=', now()->subDays(7))
+            ->groupBy('tanggal')
+            ->orderBy('tanggal', 'asc')
             ->get();
-
-        // Karyawan berdasarkan Jabatan
-        $karyawanByJabatan = Karyawan::select('jabatan', DB::raw('count(*) as total'))
-            ->groupBy('jabatan')
+        
+        // Barang terlaris bulan ini
+        $barangTerlaris = BarangKeluar::select('barang_id', DB::raw('COUNT(*) as jumlah'))
+            ->whereMonth('tanggal_keluar', now()->month)
+            ->whereYear('tanggal_keluar', now()->year)
+            ->groupBy('barang_id')
+            ->orderBy('jumlah', 'desc')
+            ->with('barang')
+            ->limit(5)
             ->get();
 
         return view('dashboard', compact(
-            'stats',
-            'salesData',
-            'topProducts',
-            'recentKaryawan',
-            'lowStockProducts',
-            'karyawanByJabatan'
+            'totalBarang',
+            'barangMasukBulanIni',
+            'barangKeluarBulanIni',
+            'stokRendah',
+            'stokHabis',
+            'totalPenjualanBulanIni',
+            'totalLabaBulanIni',
+            'barangStokRendah',
+            'transaksiTerakhir',
+            'penjualan7Hari',
+            'barangTerlaris'
         ));
-    }
-
-    // Total penjualan dari Transaksi yang Success
-    private function getTotalPenjualan()
-    {
-        $total = Transaksi::where('status', 'Success')->sum('total_transaksi');
-        return 'Rp ' . number_format($total, 0, ',', '.');
-    }
-
-    // Total order dari Pesanan
-    private function getTotalOrder()
-    {
-        return Pesanan::count();
-    }
-
-    // Data chart penjualan dari Pesanan yang Complete (6 bulan terakhir)
-    private function getSalesChartData()
-    {
-        // Ambil data pesanan complete 6 bulan terakhir
-        $sixMonthsAgo = now()->subMonths(6)->startOfMonth();
-        
-        $pesananComplete = Pesanan::where('status', 'Complete')
-            ->where('tanggal_pembayaran', '>=', $sixMonthsAgo)
-            ->select(
-                DB::raw('DATE_FORMAT(tanggal_pembayaran, "%Y-%m") as month'),
-                DB::raw('SUM(jumlah_pesanan) as total')
-            )
-            ->groupBy('month')
-            ->orderBy('month', 'asc')
-            ->get();
-
-        // Buat array untuk 6 bulan terakhir
-        $labels = [];
-        $data = [];
-        
-        for ($i = 5; $i >= 0; $i--) {
-            $month = now()->subMonths($i);
-            $monthKey = $month->format('Y-m');
-            $monthLabel = $month->format('M Y');
-            
-            $labels[] = $monthLabel;
-            
-            // Cari data untuk bulan ini
-            $monthData = $pesananComplete->firstWhere('month', $monthKey);
-            
-            // Tampilkan total jumlah pesanan
-            $data[] = $monthData ? $monthData->total : 0;
-        }
-
-        return [
-            'labels' => $labels,
-            'data' => $data
-        ];
     }
 }

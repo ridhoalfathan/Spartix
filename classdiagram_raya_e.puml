@@ -1,0 +1,367 @@
+@startuml classdiagram_raya_e
+' ============================================================
+' CLASS DIAGRAM - RAYA-E Inventory & Accounting System
+' Paste ke https://www.plantuml.com/plantuml/uml/ untuk render
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 13
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FEFEFE
+  BorderColor #555555
+  HeaderBackgroundColor #D6EAF8
+  ArrowColor #333333
+}
+skinparam package {
+  BorderColor #888888
+  BackgroundColor #F8F9FA
+}
+
+' ============================================================
+' PACKAGE: Models
+' ============================================================
+package "Models" #EAF4FB {
+
+  class User {
+    + id : bigint
+    + name : string
+    + email : string
+    + phone : string
+    + address : text
+    + photo : string
+    + role : enum <<admin|owner>>
+    + password : string
+    + remember_token : string
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + isOwner() : bool
+    + isAdmin() : bool
+    + getInitialsAttribute() : string
+    + getRoleNameAttribute() : string
+    + getPhotoUrlAttribute() : string
+    + jurnalEntries() : HasMany
+  }
+
+  class AccessCode {
+    + id : bigint
+    + code : string
+    + description : string
+    + for_role : enum <<admin|owner>>
+    + is_active : boolean
+    + max_uses : int
+    + current_uses : int
+    + expires_at : timestamp
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + isValid() : bool
+    + incrementUsage() : void
+  }
+
+  class Barang {
+    + id : bigint
+    + kode_barang : string
+    + nama_barang : string
+    + kategori : string
+    + merk : string
+    + harga : decimal(15,2)
+    + stok : int
+    + stok_minimum : int
+    + metode : enum <<FIFO>>
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + getStatusStokAttribute() : string
+    + getBadgeClassAttribute() : string
+    + getHargaFormatAttribute() : string
+    + barangMasuk() : HasMany
+    + barangKeluar() : HasMany
+    + serialNumbers() : HasMany
+  }
+
+  class BarangMasuk {
+    + id : bigint
+    + nomor_transaksi : string
+    + barang_id : bigint <<FK>>
+    + jumlah : int
+    + harga_beli : decimal(15,2)
+    + total_harga : decimal(15,2)
+    + tanggal_masuk : date
+    + supplier : string
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + {static} generateNomorTransaksi() : string
+    + barang() : BelongsTo
+    + serialNumbers() : HasMany
+  }
+
+  class SerialNumber {
+    + id : bigint
+    + serial_number : string
+    + barang_id : bigint <<FK>>
+    + barang_masuk_id : bigint <<FK>>
+    + harga_beli : decimal(15,2)
+    + status : enum <<READY|TERJUAL>>
+    + tanggal_masuk : date
+    + tanggal_keluar : date
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + getBadgeClassAttribute() : string
+    + scopeReady(query) : Builder
+    + scopeTerjual(query) : Builder
+    + barang() : BelongsTo
+    + barangMasuk() : BelongsTo
+    + barangKeluar() : HasOne
+  }
+
+  class BarangKeluar {
+    + id : bigint
+    + nomor_transaksi : string
+    + barang_id : bigint <<FK>>
+    + serial_number_id : bigint <<FK>>
+    + hpp : decimal(15,2)
+    + harga_jual : decimal(15,2)
+    + laba : decimal(15,2)
+    + tanggal_keluar : date
+    + customer : string
+    + metode_pembayaran : string
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + {static} generateNomorTransaksi() : string
+    + barang() : BelongsTo
+    + serialNumber() : BelongsTo
+  }
+
+  class Akun {
+    + id : bigint
+    + kode_akun : string
+    + nama_akun : string
+    + tipe_akun : enum <<Aset|Liabilitas|Ekuitas|Pendapatan|Beban>>
+    + kategori : enum <<Lancar|Tidak Lancar|Operasional|Non-Operasional>>
+    + saldo_normal : decimal(20,2)
+    + posisi_normal : enum <<Debit|Kredit>>
+    + parent_id : bigint <<FK self>>
+    + deskripsi : text
+    + is_active : boolean
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + getFullNameAttribute() : string
+    + scopeActive(query) : Builder
+    + scopeByType(query, type) : Builder
+    + parent() : BelongsTo
+    + children() : HasMany
+  }
+
+  class JurnalEntry {
+    + id : bigint
+    + no_jurnal : string
+    + tanggal : date
+    + referensi : string
+    + referensi_type : string
+    + keterangan : text
+    + user_id : bigint <<FK>>
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + {static} generateNoJurnal() : string
+    + getTotalDebitAttribute() : decimal
+    + getTotalKreditAttribute() : decimal
+    + details() : HasMany
+    + user() : BelongsTo
+  }
+
+  class JurnalDetail {
+    + id : bigint
+    + jurnal_entry_id : bigint <<FK>>
+    + akun_id : bigint <<FK>>
+    + debit : decimal(20,2)
+    + kredit : decimal(20,2)
+    + keterangan : text
+    + created_at : timestamp
+    + updated_at : timestamp
+    --
+    + jurnalEntry() : BelongsTo
+    + akun() : BelongsTo
+  }
+
+}
+
+' ============================================================
+' PACKAGE: Controllers
+' ============================================================
+package "Controllers" #EAF7EA {
+
+  class AuthController {
+    + showLogin() : View
+    + login(request) : RedirectResponse
+    + logout(request) : RedirectResponse
+  }
+
+  class DashboardController {
+    + index() : View
+  }
+
+  class BarangController {
+    + index(request) : View
+    + create() : View
+    + store(request) : RedirectResponse
+    + show(barang) : View
+    + edit(barang) : View
+    + update(request, barang) : RedirectResponse
+    + destroy(barang) : RedirectResponse
+    - generateKodeBarang(kategori) : string
+  }
+
+  class BarangMasukController {
+    + index() : View
+    + create() : View
+    + store(request) : RedirectResponse
+    + show(barangMasuk) : View
+    + destroy(barangMasuk) : RedirectResponse
+    - generateSerialNumbers(barang, jumlah, tanggal) : array
+    - createJurnalPembelian(barangMasuk, barang) : void
+    - getAkunId(kodeAkun) : int
+  }
+
+  class BarangKeluarController {
+    + index() : View
+    + create() : View
+    + store(request) : RedirectResponse
+    + show(barangKeluar) : View
+    + destroy(barangKeluar) : RedirectResponse
+    + invoice(nomorTransaksi) : View
+    + getSerialNumbers(request) : JsonResponse
+    + getBarangDetail(request) : JsonResponse
+    - createJurnalPenjualan(...) : void
+    - getAkunId(kodeAkun) : int
+  }
+
+  class AkunController {
+    + index(request) : View
+    + create() : View
+    + store(request) : RedirectResponse
+    + edit(akun) : View
+    + update(request, akun) : RedirectResponse
+    + destroy(akun) : RedirectResponse
+  }
+
+  class SerialNumberController {
+    + index(request) : View
+    + show(serialNumber) : View
+  }
+
+  class ProfileController {
+    + index() : View
+    + updatePassword(request) : RedirectResponse
+  }
+
+}
+
+' ============================================================
+' PACKAGE: Laporan Controllers
+' ============================================================
+package "Laporan Controllers" #FEF9E7 {
+
+  class LaporanStokController {
+    + index(request) : View|Response
+  }
+
+  class LaporanKartuStokController {
+    + index(request) : View|Response
+    - snapshotStack(stack) : array
+    - stackNilai(stack) : float
+  }
+
+  class LaporanPenjualanController {
+    + index(request) : View|Response
+  }
+
+  class LaporanJurnalUmumController {
+    + index(request) : View|Response
+  }
+
+  class LaporanBukuBesarController {
+    + index(request) : View|Response
+    + detail(request, akun) : View|Response
+  }
+
+}
+
+' ============================================================
+' PACKAGE: Middleware
+' ============================================================
+package "Middleware" #FEF5E7 {
+
+  class CheckRole {
+    + handle(request, next, role) : Response
+  }
+
+}
+
+' ============================================================
+' RELASI ANTAR MODEL
+' ============================================================
+
+' User
+User "1" --o{ "0..*" JurnalEntry        : membuat >
+
+' Barang
+Barang "1" --o{ "0..*" BarangMasuk      : dimiliki >
+Barang "1" --o{ "0..*" SerialNumber     : dimiliki >
+Barang "1" --o{ "0..*" BarangKeluar     : dimiliki >
+
+' BarangMasuk
+BarangMasuk "1" --o{ "1..*" SerialNumber : menghasilkan >
+
+' SerialNumber
+SerialNumber "1" --o| "0..1" BarangKeluar : terjual >
+
+' Akun self-referencing
+Akun "0..1" --o{ "0..*" Akun            : parent - child >
+
+' JurnalEntry
+JurnalEntry "1" --o{ "2..*" JurnalDetail : terdiri dari >
+
+' JurnalDetail
+JurnalDetail }o-- "1" Akun              : menggunakan >
+
+' ============================================================
+' RELASI CONTROLLER → MODEL
+' ============================================================
+
+BarangController          ..> Barang           : uses
+BarangMasukController     ..> BarangMasuk      : uses
+BarangMasukController     ..> SerialNumber     : uses
+BarangMasukController     ..> JurnalEntry      : uses
+BarangMasukController     ..> JurnalDetail     : uses
+BarangMasukController     ..> Akun             : uses
+BarangKeluarController    ..> BarangKeluar     : uses
+BarangKeluarController    ..> SerialNumber     : uses
+BarangKeluarController    ..> JurnalEntry      : uses
+BarangKeluarController    ..> JurnalDetail     : uses
+BarangKeluarController    ..> Akun             : uses
+AkunController            ..> Akun             : uses
+SerialNumberController    ..> SerialNumber     : uses
+LaporanStokController     ..> Barang           : uses
+LaporanKartuStokController ..> Barang          : uses
+LaporanKartuStokController ..> BarangMasuk     : uses
+LaporanKartuStokController ..> BarangKeluar    : uses
+LaporanKartuStokController ..> SerialNumber    : uses
+LaporanPenjualanController ..> BarangKeluar    : uses
+LaporanPenjualanController ..> Barang          : uses
+LaporanJurnalUmumController ..> JurnalEntry    : uses
+LaporanBukuBesarController ..> Akun            : uses
+LaporanBukuBesarController ..> JurnalDetail    : uses
+DashboardController       ..> Barang           : uses
+DashboardController       ..> BarangMasuk      : uses
+DashboardController       ..> BarangKeluar     : uses
+CheckRole                 ..> User             : validates role >
+
+@enduml

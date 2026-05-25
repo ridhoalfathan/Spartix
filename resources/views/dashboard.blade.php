@@ -1,669 +1,773 @@
 @extends('layouts.main')
 
-@section('page-title', 'Dashboard')
+@section('title', 'Dashboard - RAYA-E')
 
-@section('content')
-
+@section('styles')
 <style>
-    * {
-        box-sizing: border-box;
+    /* Override body background to match sidebar design */
+    body {
+        background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #dbeafe 100%) !important;
     }
-
-    .dashboard-container {
-        max-width: 100%;
-        padding: 0;
+    
+    body::before {
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%) !important;
     }
-
-    .dashboard-header {
-        margin-bottom: 30px;
+    
+    .main-content {
+        background: transparent !important;
     }
-
-    .dashboard-header h2 {
-        margin: 0;
-        font-size: clamp(24px, 4vw, 32px);
-        font-weight: 700;
-        color: white;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .dashboard-header p {
-        margin: 8px 0 0 0;
-        opacity: 0.8;
-        font-size: 15px;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    /* Stats Cards - Blue Theme */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-
-    .stat-card {
-        background: rgba(255, 255, 255, 0.95);
+    
+    /* Top Header */
+    .top-header {
+        background: #ffffff;
+        padding: 1.75rem 2rem;
         border-radius: 16px;
-        padding: 24px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.1);
+    }
+    
+    .top-header h1 {
+        font-size: 1.75rem;
+        font-weight: 800;
         color: #1e3a8a;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin: 0;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .top-header h1 i {
+        color: #2563EB;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(135deg, #2563EB 0%, #1e40af 100%);
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+        transition: all 0.3s ease;
+    }
+    
+    .user-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+    }
+    
+    .user-avatar {
+        width: 38px;
+        height: 38px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2563EB;
+        font-weight: 800;
+        font-size: 1rem;
+    }
+    
+    /* Welcome Section */
+    .welcome-section {
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #2563EB 0%, #0ea5e9 100%);
+    }
+    
+    .welcome-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #2563EB 0%, #1e3a8a 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
+    }
+    
+    .welcome-subtitle {
+        font-size: 1rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+    }
+    
+    .welcome-subtitle i {
+        color: #2563EB;
+    }
+    
+    /* Stats Cards Row */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: #ffffff;
+        padding: 1.75rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.1);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(30, 58, 138, 0.1);
     }
-
+    
     .stat-card::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(180deg, #2563eb, #1e40af);
-        transition: all 0.3s;
+        right: 0;
+        height: 4px;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
     }
-
+    
+    .stat-card.blue::before { background: linear-gradient(90deg, #2563EB 0%, #0ea5e9 100%); }
+    .stat-card.green::before { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
+    .stat-card.orange::before { background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); }
+    .stat-card.red::before { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); }
+    
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
-        background: rgba(255, 255, 255, 1);
+        transform: translateY(-8px);
+        box-shadow: 0 8px 30px rgba(37, 99, 235, 0.15);
     }
-
-    .stat-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 18px;
+    
+    .stat-card:hover::before {
+        transform: scaleX(1);
     }
-
-    .stat-card-icon {
-        width: 52px;
-        height: 52px;
+    
+    .stat-icon {
+        width: 56px;
+        height: 56px;
         border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 26px;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
         color: white;
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }
-
-    .stat-card-title {
-        font-size: 14px;
+    
+    .stat-icon.blue { background: linear-gradient(135deg, #2563EB 0%, #1e40af 100%); }
+    .stat-icon.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .stat-icon.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .stat-icon.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    
+    .stat-label {
         color: #64748b;
-        margin: 0 0 8px 0;
-        font-weight: 500;
-        letter-spacing: 0.3px;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
-
-    .stat-card-value {
-        font-size: clamp(28px, 5vw, 36px);
-        font-weight: 700;
-        margin: 0;
-        line-height: 1.1;
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 900;
         color: #1e3a8a;
+        letter-spacing: -1px;
+        margin-bottom: 0.5rem;
     }
-
-    /* Content Grid */
-    .content-grid {
+    
+    .stat-change {
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .stat-change.up { color: #10b981; }
+    .stat-change.down { color: #ef4444; }
+    .stat-change.info { color: #2563EB; }
+    
+    /* Middle Stats Row */
+    .middle-stats {
         display: grid;
-        grid-template-columns: 1fr;
-        gap: 20px;
-        margin-top: 30px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
-
-    @media (min-width: 1200px) {
-        .content-grid {
-            grid-template-columns: 2fr 1fr;
-        }
+    
+    /* Bottom Cards */
+    .bottom-cards {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
     }
-
-    .chart-card, .table-card {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 28px;
+    
+    .report-card, .stock-card {
+        background: #ffffff;
+        padding: 2rem;
         border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(30, 58, 138, 0.1);
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.1);
+        transition: all 0.3s ease;
     }
-
+    
+    .report-card:hover, .stock-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(37, 99, 235, 0.12);
+    }
+    
     .card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 15px;
-        margin-bottom: 25px;
-        padding-bottom: 18px;
-        border-bottom: 2px solid rgba(37, 99, 235, 0.15);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f5f9;
     }
-
-    .card-header-left {
+    
+    .card-title {
         display: flex;
         align-items: center;
         gap: 12px;
-    }
-
-    .card-header i {
-        font-size: 26px;
-        color: #2563eb;
-    }
-
-    .card-header h3 {
-        margin: 0;
-        font-size: 19px;
-        font-weight: 600;
+        font-size: 1.25rem;
+        font-weight: 800;
         color: #1e3a8a;
+        letter-spacing: -0.5px;
     }
-
-    .view-all-link {
-        color: #2563eb;
+    
+    .card-title i {
+        color: #2563EB;
+        font-size: 1.5rem;
+    }
+    
+    .view-all {
+        color: #2563EB;
         text-decoration: none;
-        font-size: 13px;
+        font-weight: 700;
+        font-size: 0.875rem;
         display: flex;
         align-items: center;
-        gap: 5px;
-        transition: all 0.3s;
-        font-weight: 500;
+        gap: 6px;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
     }
-
-    .view-all-link:hover {
+    
+    .view-all:hover {
+        background: rgba(37, 99, 235, 0.1);
+        border-color: rgba(37, 99, 235, 0.2);
         color: #1e40af;
-        gap: 8px;
-    }
-
-    /* Table Styles */
-    .table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        color: #1e3a8a;
-        font-size: 14px;
-    }
-
-    table thead {
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-    }
-
-    table th {
-        padding: 14px 16px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: white;
-        border: none;
-    }
-
-    table td {
-        padding: 14px 16px;
-        border-bottom: 1px solid rgba(37, 99, 235, 0.1);
-        color: #334155;
-    }
-
-    table tbody tr {
-        transition: all 0.2s;
-        background: white;
-    }
-
-    table tbody tr:hover {
-        background: rgba(37, 99, 235, 0.05);
-    }
-
-    table td strong {
-        color: #2563eb;
-        font-weight: 600;
-    }
-
-    .stock-badge {
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        display: inline-block;
-    }
-
-    .stock-high { 
-        background: rgba(34, 197, 94, 0.15); 
-        color: #16a34a;
-        border: 1px solid rgba(34, 197, 94, 0.3);
+        transform: translateX(4px);
     }
     
-    .stock-low { 
-        background: rgba(239, 68, 68, 0.15); 
-        color: #dc2626;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .badge {
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        display: inline-block;
-    }
-
-    .badge-admin { 
-        background: rgba(37, 99, 235, 0.15); 
-        color: #2563eb;
-        border: 1px solid rgba(37, 99, 235, 0.3);
-    }
-    
-    .badge-produksi { 
-        background: rgba(168, 85, 247, 0.15); 
-        color: #9333ea;
-        border: 1px solid rgba(168, 85, 247, 0.3);
-    }
-
     /* Chart Container */
     .chart-container {
+        height: 320px;
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 1.5rem;
         position: relative;
-        width: 100%;
-        max-height: 400px;
     }
-
+    
+    .chart-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chart-stats {
+        display: flex;
+        justify-content: space-around;
+        padding: 1rem 0;
+        border-bottom: 2px solid #f1f5f9;
+        margin-bottom: 1rem;
+    }
+    
+    .chart-stat-item {
+        text-align: center;
+    }
+    
+    .chart-stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .chart-stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #1e3a8a;
+    }
+    
+    .chart-bars {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        gap: 0.75rem;
+        padding: 0 0.5rem;
+    }
+    
+    .chart-bar-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .chart-bar-container {
+        width: 100%;
+        height: 200px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .chart-bar {
+        width: 100%;
+        background: linear-gradient(180deg, #2563EB 0%, #1e40af 100%);
+        border-radius: 8px 8px 0 0;
+        position: relative;
+        transition: all 0.3s ease;
+        box-shadow: 0 -4px 12px rgba(37, 99, 235, 0.2);
+    }
+    
+    .chart-bar:hover {
+        background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+        box-shadow: 0 -6px 16px rgba(37, 99, 235, 0.3);
+    }
+    
+    .chart-bar-value {
+        position: absolute;
+        top: -28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e3a8a;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .chart-bar-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 0.5rem;
+    }
+    
+    /* Stock Table */
+    .stock-table-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(135deg, #2563EB 0%, #1e40af 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stock-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        align-items: center;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+    }
+    
+    .stock-item:hover {
+        background: rgba(37, 99, 235, 0.05);
+        border-color: transparent;
+    }
+    
+    .stock-item:last-child {
+        border-bottom: none;
+    }
+    
+    .stock-name {
+        color: #1e3a8a;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+    
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.875rem;
+    }
+    
+    .stock-badge.danger {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+        color: #dc2626;
+        border: 2px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .stock-badge.warning {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%);
+        color: #d97706;
+        border: 2px solid rgba(245, 158, 11, 0.3);
+    }
+    
     .empty-state {
         text-align: center;
+        padding: 3rem 1rem;
         color: #64748b;
-        padding: 40px 20px;
-        font-size: 14px;
     }
-
+    
     .empty-state i {
-        font-size: 48px;
-        opacity: 0.3;
-        margin-bottom: 10px;
-        display: block;
-        color: #2563eb;
+        font-size: 3rem;
+        color: #10b981;
+        margin-bottom: 1rem;
     }
-
-    /* Responsive Design */
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .middle-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .bottom-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+    
     @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
+        .stats-row, .middle-stats {
+            grid-template-columns: 1fr;
         }
-
-        .stat-card {
-            padding: 18px;
+        
+        .top-header {
+            flex-direction: column;
+            gap: 1rem;
         }
-
-        .stat-card-icon {
-            width: 44px;
-            height: 44px;
-            font-size: 22px;
+        
+        .welcome-title {
+            font-size: 1.5rem;
         }
-
-        .chart-card, .table-card {
-            padding: 20px;
-        }
-
-        .card-header h3 {
-            font-size: 17px;
-        }
-
-        table {
-            font-size: 13px;
-        }
-
-        table th, table td {
-            padding: 12px 14px;
+        
+        .stat-value {
+            font-size: 1.75rem;
         }
     }
-
-    @media (max-width: 480px) {
-        .stats-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .stat-card-title {
-            font-size: 12px;
-        }
-
-        .stat-card-value {
-            font-size: 22px;
-        }
-    }
-
-    /* Smooth Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .stat-card, .chart-card, .table-card {
-        animation: fadeInUp 0.5s ease-out backwards;
-    }
-
-    .stat-card:nth-child(1) { animation-delay: 0.05s; }
-    .stat-card:nth-child(2) { animation-delay: 0.1s; }
-    .stat-card:nth-child(3) { animation-delay: 0.15s; }
-    .stat-card:nth-child(4) { animation-delay: 0.2s; }
-    .chart-card { animation-delay: 0.25s; }
-    .table-card { animation-delay: 0.3s; }
 </style>
+@endsection
 
-<div class="dashboard-container">
-
-    <!-- Header -->
-    <div class="dashboard-header">
-        <h2>Dashboard Overview</h2>
-        <p>Selamat datang kembali, {{ Auth::user()->name ?? 'User' }}! 👋</p>
+@section('content')
+<!-- Top Header -->
+<div class="top-header">
+    <h1><i class="bi bi-grid-fill"></i> Dashboard </h1>
+    <div class="user-info">
+        <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+        <span>{{ auth()->user()->name }}</span>
     </div>
+</div>
 
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class='bx bx-dollar-circle'></i>
-                </div>
-            </div>
-            <p class="stat-card-title">Total Penjualan</p>
-            <h3 class="stat-card-value">{{ $stats['total_penjualan'] }}</h3>
+<!-- Welcome Section -->
+<div class="welcome-section">
+    <h2 class="welcome-title">Selamat Datang Kembali! 👋</h2>
+    <p class="welcome-subtitle">
+        <i class="bi bi-calendar-check"></i>
+        {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }} • {{ auth()->user()->name }}
+    </p>
+</div>
+
+<!-- Boks Peringatan Stok Rendah -->
+@if(($stokRendah + $stokHabis) > 0)
+<div class="alert-low-stock animate__animated animate__fadeIn" style="background: linear-gradient(135deg, #fff5f5 0%, #fee2e2 100%); border-left: 6px solid #ef4444; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.08), 0 4px 6px -4px rgba(239, 68, 68, 0.08); border-top: 1px solid rgba(239, 68, 68, 0.1); border-right: 1px solid rgba(239, 68, 68, 0.1); border-bottom: 1px solid rgba(239, 68, 68, 0.1); display: flex; justify-content: space-between; align-items: center; gap: 1.5rem;">
+    <div style="display: flex; align-items: flex-start; gap: 1.25rem; flex: 1;">
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 0.85rem; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3); flex-shrink: 0; width: 52px; height: 52px;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class='bx bx-cart'></i>
-                </div>
-            </div>
-            <p class="stat-card-title">Total Order</p>
-            <h3 class="stat-card-value">{{ number_format($stats['total_order']) }}</h3>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class='bx bx-user'></i>
-                </div>
-            </div>
-            <p class="stat-card-title">Total Karyawan</p>
-            <h3 class="stat-card-value">{{ number_format($stats['total_karyawan']) }}</h3>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class='bx bx-box'></i>
-                </div>
-            </div>
-            <p class="stat-card-title">Jenis Produk</p>
-            <h3 class="stat-card-value">{{ number_format($stats['total_products']) }}</h3>
-        </div>
-    </div>
-
-    <!-- Content Grid -->
-    <div class="content-grid">
-        <!-- Sales Chart -->
-        <div class="chart-card">
-            <div class="card-header">
-                <div class="card-header-left">
-                    <i class='bx bx-line-chart'></i>
-                    <h3>Report Penjualan</h3>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="salesChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Low Stock Alert -->
-        <div class="table-card">
-            <div class="card-header">
-                <div class="card-header-left">
-                    <i class='bx bx-error'></i>
-                    <h3>Stock Rendah</h3>
-                </div>
-                <a href="{{ route('product.index') }}" class="view-all-link">
-                    Lihat Semua <i class='bx bx-right-arrow-alt'></i>
-                </a>
-            </div>
-            <div class="table-wrapper">
-                @if($lowStockProducts->count() > 0)
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Produk</th>
-                            <th>Stock</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($lowStockProducts as $product)
-                        <tr>
-                            <td><strong>{{ $product->product_name }}</strong></td>
-                            <td>
-                                <span class="stock-badge stock-low">{{ number_format($product->stock) }}</span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                @else
-                <div class="empty-state">
-                    <i class='bx bx-check-circle'></i>
-                    <p>Semua produk stock aman ✓</p>
-                </div>
+        <div style="flex: 1;">
+            <h4 style="color: #991b1b; font-weight: 850; margin: 0 0 0.5rem 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px;">
+                PERINGATAN: STOK KRITIS / RENDAH!
+                <span class="badge" style="background: #ef4444; color: white; font-size: 0.75rem; padding: 0.3rem 0.65rem; font-weight: 800; border-radius: 8px; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);">{{ $stokRendah + $stokHabis }} Barang</span>
+            </h4>
+            <p style="color: #7f1d1d; margin: 0 0 1rem 0; font-size: 0.95rem; font-weight: 600; line-height: 1.5;">
+                Beberapa barang berikut telah berada di bawah batas stok minimum atau habis. Segera lakukan pemesanan ulang (restock) ke supplier untuk menjaga kelancaran operasional toko!
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                @foreach($barangStokRendah as $barang)
+                    <div style="background: #ffffff; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem 1rem; border-radius: 10px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+                        <span style="font-weight: 700; color: #1e3a8a; font-size: 0.85rem;">{{ $barang->nama_barang }}</span>
+                        <span class="badge" style="background: {{ $barang->stok <= 0 ? 'linear-gradient(135deg, #fecaca 0%, #fca5a5 100%)' : 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' }}; color: {{ $barang->stok <= 0 ? '#991b1b' : '#92400e' }}; font-size: 0.75rem; padding: 0.25rem 0.6rem; font-weight: 800; border-radius: 6px; border: 1px solid {{ $barang->stok <= 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)' }};">
+                            {{ $barang->stok <= 0 ? 'HABIS' : 'Sisa: ' . $barang->stok . ' Unit' }}
+                        </span>
+                    </div>
+                @endforeach
+                @if(($stokRendah + $stokHabis) > 5)
+                    <div style="background: rgba(239, 68, 68, 0.05); border: 1px dashed rgba(239, 68, 68, 0.4); padding: 0.5rem 1rem; border-radius: 10px; display: flex; align-items: center;">
+                        <span style="font-weight: 700; color: #b91c1c; font-size: 0.85rem;">+{{ ($stokRendah + $stokHabis) - 5 }} barang lainnya</span>
+                    </div>
                 @endif
             </div>
         </div>
     </div>
+    <div style="flex-shrink: 0;">
+        <a href="{{ route('laporan.stok') }}?status=rendah" class="btn btn-danger" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; border-radius: 12px; padding: 0.75rem 1.5rem; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); text-decoration: none; color: white; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(239, 68, 68, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(239, 68, 68, 0.3)';">
+            <i class="bi bi-arrow-right-circle-fill"></i> Kelola & Restock
+        </a>
+    </div>
+</div>
+@endif
 
-    <!-- Top Products -->
-    <div class="table-card" style="margin-top: 20px;">
-        <div class="card-header">
-            <div class="card-header-left">
-                <i class='bx bx-trending-up'></i>
-                <h3>Top Products</h3>
-            </div>
-            <a href="{{ route('product.index') }}" class="view-all-link">
-                Lihat Semua <i class='bx bx-right-arrow-alt'></i>
-            </a>
+<!-- Stats Cards Row 1 -->
+<div class="stats-row">
+    <div class="stat-card blue">
+        <div class="stat-icon blue">
+            <i class="bi bi-box-seam-fill"></i>
         </div>
-        <div class="table-wrapper">
-            @if($topProducts->count() > 0)
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Produk</th>
-                        <th>Stock</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($topProducts as $key => $product)
-                    <tr>
-                        <td><strong>{{ $key + 1 }}</strong></td>
-                        <td>{{ $product->product_name }}</td>
-                        <td><strong>{{ number_format($product->stock) }}</strong></td>
-                        <td>
-                            @if($product->stock >= 500)
-                                <span class="stock-badge stock-high">Aman</span>
-                            @else
-                                <span class="stock-badge stock-low">Rendah</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @else
-            <div class="empty-state">
-                <i class='bx bx-package'></i>
-                <p>Belum ada data produk</p>
-            </div>
-            @endif
+        <div class="stat-label">Total Barang</div>
+        <div class="stat-value">{{ number_format($totalBarang, 0, ',', '.') }}</div>
+        <div class="stat-change info">
+            <i class="bi bi-boxes"></i> Unit Tersedia
         </div>
     </div>
-
-    <!-- Recent Karyawan -->
-    <div class="table-card" style="margin-top: 20px;">
-        <div class="card-header">
-            <div class="card-header-left">
-                <i class='bx bx-user-plus'></i>
-                <h3>Karyawan Terbaru</h3>
-            </div>
-            <a href="{{ route('karyawan.index') }}" class="view-all-link">
-                Lihat Semua <i class='bx bx-right-arrow-alt'></i>
-            </a>
+    
+    <div class="stat-card green">
+        <div class="stat-icon green">
+            <i class="bi bi-cart-plus-fill"></i>
         </div>
-        <div class="table-wrapper">
-            @if($recentKaryawan->count() > 0)
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama</th>
-                        <th>Jabatan</th>
-                        <th>Kategori</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($recentKaryawan as $karyawan)
-                    <tr>
-                        <td><strong>{{ $karyawan->id_karyawan }}</strong></td>
-                        <td>{{ $karyawan->nama_karyawan }}</td>
-                        <td><span class="badge badge-{{ strtolower($karyawan->jabatan) }}">{{ $karyawan->jabatan }}</span></td>
-                        <td>{{ $karyawan->kategori }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @else
-            <div class="empty-state">
-                <i class='bx bx-user'></i>
-                <p>Belum ada data karyawan</p>
-            </div>
-            @endif
+        <div class="stat-label">Pembelian</div>
+        <div class="stat-value">{{ number_format($barangMasukBulanIni, 0, ',', '.') }}</div>
+        <div class="stat-change up">
+            <i class="bi bi-arrow-up-circle-fill"></i> Bulan Ini
         </div>
     </div>
-
+    
+    <div class="stat-card orange">
+        <div class="stat-icon orange">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="stat-label">Penjualan</div>
+        <div class="stat-value">{{ number_format($barangKeluarBulanIni, 0, ',', '.') }}</div>
+        <div class="stat-change down">
+            <i class="bi bi-arrow-down-circle-fill"></i> Bulan Ini
+        </div>
+    </div>
+    
+    <div class="stat-card red">
+        <div class="stat-icon red">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="stat-label">Stok Rendah</div>
+        <div class="stat-value">{{ number_format($stokRendah, 0, ',', '.') }}</div>
+        <div class="stat-change down">
+            <i class="bi bi-exclamation-octagon-fill"></i> Perhatian!
+        </div>
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Stats Cards Row 2 -->
+<div class="middle-stats">
+    <div class="stat-card blue">
+        <div class="stat-icon blue">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+        <div class="stat-label">Total Penjualan</div>
+        <div class="stat-value">Rp {{ number_format($totalPenjualanBulanIni, 0, ',', '.') }}</div>
+        <div class="stat-change up">
+            <i class="bi bi-graph-up"></i> Bulan Ini
+        </div>
+    </div>
+    
+    <div class="stat-card green">
+        <div class="stat-icon green">
+            <i class="bi bi-trophy-fill"></i>
+        </div>
+        <div class="stat-label">Total Laba</div>
+        <div class="stat-value">Rp {{ number_format($totalLabaBulanIni, 0, ',', '.') }}</div>
+        <div class="stat-change up">
+            <i class="bi bi-graph-up-arrow"></i> Profit
+        </div>
+    </div>
+    
+    <div class="stat-card red">
+        <div class="stat-icon red">
+            <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <div class="stat-label">Stok Habis</div>
+        <div class="stat-value">{{ number_format($stokHabis, 0, ',', '.') }}</div>
+        <div class="stat-change down">
+            <i class="bi bi-exclamation-diamond-fill"></i> Restock!
+        </div>
+    </div>
+</div>
 
-<script>
-const ctx = document.getElementById('salesChart');
-
-// Gradient for chart - Blue Theme
-const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0, 'rgba(37, 99, 235, 0.3)');
-gradient.addColorStop(1, 'rgba(37, 99, 235, 0.01)');
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {!! json_encode($salesData['labels']) !!},
-        datasets: [{
-            label: "Total Pesanan",
-            tension: 0.4,
-            data: {!! json_encode($salesData['data']) !!},
-            borderColor: "#2563eb",
-            backgroundColor: gradient,
-            borderWidth: 3,
-            fill: true,
-            pointBackgroundColor: "#2563eb",
-            pointBorderColor: "#fff",
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: "#1e40af",
-            pointHoverBorderWidth: 3
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 2,
-        interaction: {
-            mode: 'index',
-            intersect: false,
-        },
-        plugins: {
-            legend: { 
-                display: true,
-                position: 'top',
-                align: 'end',
-                labels: { 
-                    color: "#1e3a8a",
-                    font: {
-                        size: 13,
-                        family: 'Poppins',
-                        weight: '500'
-                    },
-                    padding: 15,
-                    usePointStyle: true,
-                    pointStyle: 'circle'
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(30, 58, 138, 0.95)',
-                padding: 15,
-                cornerRadius: 10,
-                titleFont: {
-                    size: 14,
-                    family: 'Poppins',
-                    weight: '600'
-                },
-                bodyFont: {
-                    size: 13,
-                    family: 'Poppins'
-                },
-                callbacks: {
-                    label: function(context) {
-                        return 'Total Pesanan: ' + context.parsed.y + ' pesanan';
-                    }
-                }
-            }
-        },
-        scales: {
-            x: { 
-                ticks: { 
-                    color: "#64748b",
-                    font: {
-                        size: 12,
-                        family: 'Poppins'
-                    }
-                },
-                grid: {
-                    color: 'rgba(37, 99, 235, 0.1)',
-                    drawBorder: false
-                }
-            },
-            y: { 
-                ticks: { 
-                    color: "#64748b",
-                    font: {
-                        size: 12,
-                        family: 'Poppins'
-                    },
-                    callback: function(value) {
-                        return value;
-                    }
-                },
-                grid: {
-                    color: 'rgba(37, 99, 235, 0.1)',
-                    drawBorder: false
-                }
-            }
-        }
-    }
-});
-</script>
-
+<!-- Bottom Cards -->
+<div class="bottom-cards">
+    <!-- Report Penjualan -->
+    <div class="report-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="bi bi-graph-up-arrow"></i>
+                Penjualan per Kategori Barang
+            </h3>
+            <a href="{{ route('laporan.penjualan') }}" class="view-all">
+                Lihat Detail <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <div class="chart-stats">
+                    <div class="chart-stat-item">
+                        <div class="chart-stat-label">Total Transaksi</div>
+                        <div class="chart-stat-value">
+                            {{ \App\Models\BarangKeluar::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count() }}
+                        </div>
+                    </div>
+                    <div class="chart-stat-item">
+                        <div class="chart-stat-label">Total Penjualan</div>
+                        <div class="chart-stat-value">
+                            Rp {{ number_format(\App\Models\BarangKeluar::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('harga_jual'), 0, ',', '.') }}
+                        </div>
+                    </div>
+                    <div class="chart-stat-item">
+                        <div class="chart-stat-label">Bulan</div>
+                        <div class="chart-stat-value" style="font-size: 1rem; color: #2563EB;">
+                            {{ \Carbon\Carbon::now()->locale('id')->isoFormat('MMMM YYYY') }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-bars">
+                    @php
+                        // Get all unique kategori from barang table
+                        $allKategori = \App\Models\Barang::distinct()->pluck('kategori')->toArray();
+                        
+                        // Group penjualan bulan ini by kategori
+                        $penjualanBulanIni = \App\Models\BarangKeluar::with('barang')
+                            ->whereMonth('created_at', now()->month)
+                            ->whereYear('created_at', now()->year)
+                            ->get()
+                            ->groupBy('barang.kategori')
+                            ->map(function($items) {
+                                return [
+                                    'jumlah' => $items->count(),
+                                    'total' => $items->sum('harga_jual')
+                                ];
+                            });
+                        
+                        $maxJumlah = $penjualanBulanIni->max('jumlah') ?: 1;
+                    @endphp
+                    
+                    @forelse($allKategori as $kategori)
+                        @php
+                            $data = $penjualanBulanIni[$kategori] ?? ['jumlah' => 0, 'total' => 0];
+                            $percentage = $maxJumlah > 0 ? ($data['jumlah'] / $maxJumlah) * 100 : 0;
+                            $percentage = max($percentage, 5); // Minimum 5% untuk visibility
+                        @endphp
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar-container">
+                                <div class="chart-bar" style="height: {{ $percentage }}%; {{ $data['jumlah'] == 0 ? 'opacity: 0.3;' : '' }}">
+                                    <div class="chart-bar-value">{{ $data['jumlah'] }} Unit</div>
+                                </div>
+                            </div>
+                            <div class="chart-bar-label">{{ strtoupper($kategori) }}</div>
+                        </div>
+                    @empty
+                        <div style="width: 100%; text-align: center; color: #64748b; padding: 2rem;">
+                            <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                            <p style="margin: 0; font-weight: 600;">Belum ada kategori barang</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stock Rendah -->
+    <div class="stock-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Stok Rendah
+            </h3>
+            <a href="{{ route('laporan.stok') }}" class="view-all">
+                Lihat Semua <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        
+        @if($barangStokRendah->count() > 0)
+            <div class="stock-table-header">
+                <div>PRODUK</div>
+                <div>STOK</div>
+            </div>
+            
+            @foreach($barangStokRendah as $barang)
+            <div class="stock-item">
+                <div>
+                    <div class="stock-name">{{ $barang->nama_barang }}</div>
+                    <small style="color: #64748b; font-weight: 600;">{{ $barang->kategori }} • {{ $barang->merk }}</small>
+                </div>
+                <div>
+                    <span class="stock-badge {{ $barang->stok == 0 ? 'danger' : 'warning' }}">
+                        {{ $barang->stok }} Unit
+                    </span>
+                </div>
+            </div>
+            @endforeach
+        @else
+            <div class="empty-state">
+                <i class="bi bi-check-circle-fill"></i>
+                <p><strong style="color: #1e3a8a;">Semua Stok Aman!</strong></p>
+                <p style="font-size: 0.875rem; color: #64748b; margin-top: 0.5rem;">Tidak ada barang dengan stok rendah</p>
+            </div>
+        @endif
+    </div>
+</div>
 @endsection

@@ -6,17 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone', 20)->nullable();
+            $table->text('address')->nullable();
+            $table->string('photo')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('role', ['admin', 'owner'])->default('admin'); // Cuma admin dan owner
             $table->rememberToken();
             $table->timestamps();
         });
@@ -35,15 +36,25 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('access_codes', function (Blueprint $table) {
+            $table->id();
+            $table->string('code', 20)->unique();
+            $table->string('description')->nullable();
+            $table->enum('for_role', ['admin', 'owner'])->default('admin'); // Kode untuk role apa
+            $table->boolean('is_active')->default(true);
+            $table->integer('max_uses')->nullable();
+            $table->integer('current_uses')->default(0);
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamps();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('access_codes');
     }
 };

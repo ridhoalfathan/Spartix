@@ -3,16 +3,17 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\KaryawanController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\PembelianController;
-use App\Http\Controllers\PesananController;
-use App\Http\Controllers\TransaksiController;
-use App\Http\Controllers\ProduksiController;
-use App\Http\Controllers\SalaryReportController;
-use App\Http\Controllers\JurnalUmumController;
-use App\Http\Controllers\BukuBesarController;
-use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\BarangMasukController;
+use App\Http\Controllers\BarangKeluarController;
+use App\Http\Controllers\SerialNumberController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AkunController;
+use App\Http\Controllers\Laporan\LaporanStokController;
+use App\Http\Controllers\Laporan\LaporanKartuStokController;
+use App\Http\Controllers\Laporan\LaporanPenjualanController;
+use App\Http\Controllers\Laporan\LaporanJurnalUmumController;
+use App\Http\Controllers\Laporan\LaporanBukuBesarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,89 +21,82 @@ use App\Http\Controllers\SettingsController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+// Authentication Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+});
 
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
-| Protected Routes (Must Login)
+| Protected Routes
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('auth')->group(function () {
 
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
-    // Master Data
-    Route::resource('karyawan', KaryawanController::class);
-    Route::resource('product', ProductController::class);
+    // ==========================================
+    // ROUTE KHUSUS ADMIN
+    // ==========================================
+    Route::middleware(\App\Http\Middleware\CheckRole::class.':admin')->group(function () {
+        // Master Data - Barang
+        Route::resource('barang', BarangController::class);
 
-    // Operasional
-    Route::resource('pembelian', PembelianController::class);
-    Route::resource('pesanan', PesananController::class);
-    Route::resource('transaksi', TransaksiController::class);
-    Route::resource('produksi', ProduksiController::class);
+        // Master Akuntansi - Akun
+        Route::resource('akun', AkunController::class);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Salary Report
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('salary-report', SalaryReportController::class);
-    Route::get('/salary-report-export-pdf', [SalaryReportController::class, 'exportPdf'])
-        ->name('salary-report.export-pdf');
-    Route::get('/get-karyawan/{id}', [SalaryReportController::class, 'getKaryawan'])
-        ->name('get-karyawan');
-    Route::patch('/salary-report/{id}/mark-paid', [SalaryReportController::class, 'markPaid'])
-        ->name('salary-report.mark-paid');
+        // Transaksi - Barang Masuk
+        Route::resource('barang-masuk', BarangMasukController::class)
+            ->except(['edit', 'update']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Jurnal Umum
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('jurnal-umum')->name('jurnal-umum.')->group(function () {
-        Route::get('/', [JurnalUmumController::class, 'index'])->name('index');
-        Route::get('/create', [JurnalUmumController::class, 'create'])->name('create');
-        Route::post('/', [JurnalUmumController::class, 'store'])->name('store');
-        Route::get('/{jurnalUmum}', [JurnalUmumController::class, 'show'])->name('show');
-        Route::get('/{jurnalUmum}/edit', [JurnalUmumController::class, 'edit'])->name('edit');
-        Route::put('/{jurnalUmum}', [JurnalUmumController::class, 'update'])->name('update');
-        Route::delete('/{jurnalUmum}', [JurnalUmumController::class, 'destroy'])->name('destroy');
+        // Transaksi - Barang Keluar
+        Route::resource('barang-keluar', BarangKeluarController::class)
+            ->except(['edit', 'update']);
+        Route::get('/barang-keluar/invoice/{nomorTransaksi}', [BarangKeluarController::class, 'invoice'])
+            ->name('barang-keluar.invoice');
+        Route::get('/get-barang-detail', [BarangKeluarController::class, 'getBarangDetail'])
+            ->name('barang-keluar.get-barang-detail');
+        
+        // Ajax route untuk get serial numbers
+        Route::get('/get-serial-numbers', [BarangKeluarController::class, 'getSerialNumbers'])
+            ->name('get-serial-numbers');
 
-        // Sync & Export
-        Route::post('/sync', [JurnalUmumController::class, 'sync'])->name('sync');
-        Route::get('/export/pdf', [JurnalUmumController::class, 'exportPdf'])->name('export-pdf');
+        // Serial Numbers Management
+        Route::get('/serial-numbers', [SerialNumberController::class, 'index'])
+            ->name('serial-numbers.index');
+        Route::get('/serial-numbers/{serialNumber}', [SerialNumberController::class, 'show'])
+            ->name('serial-numbers.show');
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Buku Besar
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('buku-besar')->name('buku-besar.')->group(function () {
-        Route::get('/', [BukuBesarController::class, 'index'])->name('index');
-        Route::post('/sync', [BukuBesarController::class, 'sync'])->name('sync');
-        Route::get('/export-pdf', [BukuBesarController::class, 'exportPdf'])->name('export-pdf');
+    // ==========================================
+    // ROUTE BISA DIAKSES SEMUA ROLE
+    // ==========================================
+    // Laporan
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        // Laporan Inventori
+        Route::get('/stok',       [LaporanStokController::class,      'index'])->name('stok');
+        Route::get('/kartu-stok', [LaporanKartuStokController::class, 'index'])->name('kartu-stok');
+        Route::get('/penjualan',  [LaporanPenjualanController::class, 'index'])->name('penjualan');
+
+        // Laporan Akuntansi
+        Route::get('/jurnal-umum',    [LaporanJurnalUmumController::class, 'index'])->name('jurnal-umum');
+        Route::get('/buku-besar',     [LaporanBukuBesarController::class,  'index'])->name('buku-besar');
+        Route::get('/buku-besar/{akun}', [LaporanBukuBesarController::class, 'detail'])->name('buku-besar.detail');
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | User Settings
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [SettingsController::class, 'index'])->name('index');
-        Route::post('/profile', [SettingsController::class, 'updateProfile'])->name('update-profile');
-        Route::post('/password', [SettingsController::class, 'updatePassword'])->name('update-password');
-    });
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
